@@ -1,6 +1,6 @@
 # 스토어 등록 문구 (v2.0.1)
 
-> 2026-09-04 기준. Edge·Chrome·Whale 세 스토어 모두 이 문구로 v2.0.1 제출을 마쳤습니다(심사 중).
+> 2026-09-04 기준. Edge·Chrome·Whale 세 스토어 모두 이 문구로 v2.0.1 을 제출했고, Edge 는 당일 게시되었습니다.
 > 이후 버전에서도 이 문서를 등록 문구 정본으로 사용합니다.
 
 ## 업로드 파일
@@ -154,6 +154,6 @@ Notes for the reviewer
 
 | 스토어 | 상태 | 비고 |
 |--------|------|------|
-| Microsoft Edge Add-ons | 2026-09-04 제출, 심사 중 | 패키지·설명(한/영)·스크린샷·개인정보 항목 모두 갱신. 회신까지 영업일 7일 예상 |
+| Microsoft Edge Add-ons | 2026-09-04 게시 완료 | 제출 당일 승인. [스토어 페이지](https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm) |
 | Chrome 웹 스토어 | 2026-09-04 제출, 심사 중 | 개발자 콘솔이 확장 스크립팅 차단 영역이라 직접 업로드로 진행 |
 | Whale 스토어 | 2026-09-04 제출, 리뷰 중 | 수정 화면에서 패키지 재업로드 후 리뷰 요청 완료 |

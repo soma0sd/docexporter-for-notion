@@ -7,7 +7,8 @@
 | 현재 버전 | 2.0.1 (2026-09-03 빌드) |
 | 스토어 등록명 | Notion Exporter / Notion 내보내기 |
 | 지원 브라우저 | Chrome · Microsoft Edge · Whale |
-| 게시 상태 | 2026-09-04 기준 세 스토어 모두 v2.0.1 심사 중 |
+| 게시 상태 | Edge 게시 완료(2026-09-04) · Chrome·Whale 심사 중 |
+| 설치 | [Microsoft Edge 애드온 스토어](https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm) |
 
 ---
 
