@@ -164,6 +164,35 @@ Notion이 앱 주소를 `app.notion.com` 으로 옮기면서 확장이 페이지
 - 현재 Notion 앱 주소(app.notion.com)와 기존 www.notion.so 주소를 모두 지원
 - 완전한 클라이언트 사이드 처리: 데이터가 외부 서버로 전송되지 않음
 
+### 영문 설명 전문 (스토어 등록용)
+
+```
+Notion Exporter turns any Notion page into a polished Microsoft Word (DOCX) or Hancom Office (HWPX) document in a single click.
+
+Unlike Notion's built-in export, it assembles a finished document for you: a designed cover page, an automatically generated table of contents, and fully styled body content. Every step runs inside your browser, so your page content is never uploaded to an external server.
+
+WHAT YOU CAN DO
+- Export straight from the Notion top bar: pick DOCX or HWPX from the Export menu
+- Design a cover page: add a cover image, place text blocks freely, and let the page title and author fill themselves in
+- Set fonts and colors for eight slots: global, heading 1, heading 2, heading 3, body, quote, code, and caption
+- Get a real table of contents: a Word TOC field in DOCX, an HWP TOC control in HWPX
+
+WHAT IT CONVERTS
+Headings, paragraphs, bulleted and numbered lists, to-do checklists, quotes, callouts with emoji and background color, code blocks, tables, images, bookmarks, dividers, toggles, multi-column layouts, and Mermaid diagrams.
+
+- Heading levels are normalized: the highest level actually used on a page becomes Heading 1
+- Images are scaled to fit the page or table cell while keeping their aspect ratio
+- Mermaid diagrams rendered on the page are captured and embedded as images
+
+GOOD TO KNOW
+- Works on the current Notion app address (app.notion.com) and the legacy www.notion.so address
+- Interface in English and Korean, following your browser language
+- Light and dark themes follow your system setting
+- Sub-pages, databases, synced blocks, equations, and embedded media are skipped during conversion
+```
+
+한국어 설명 전문은 [store/listing_v2.0.1.md](store/listing_v2.0.1.md) 의 `상세 설명 (한국어)` 절에 있습니다.
+
 ### 데이터 사용 공시
 
 수집하는 데이터가 없으므로 스토어 개인정보 항목은 전부 "해당 없음" 으로 신고했습니다. 원격 코드도
