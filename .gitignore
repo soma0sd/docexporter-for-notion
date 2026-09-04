@@ -1,0 +1,19 @@
+# 의존성 (npm install 산출물)
+node_modules/
+
+# 빌드 산출물 (vite build 결과, npm run build 로 재생성)
+dist/
+
+# Claude Code 로컬 메모리·지침 (로컬 전용, 추적 제외)
+.claude/
+CLAUDE.md
+.claudeignore
+
+# OS·에디터 잔여 파일
+.DS_Store
+Thumbs.db
+*.swp
+
+# 시크릿
+.env
+.env.*

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
+  <style>
+    :root {
+      --bg: #fff; --bg2: #f7f7f7; --fg: #1a1a1a; --fg2: #555; --fg3: #999;
+      --border: #e0e0e0; --accent: #2563eb; --accent-hover: #1d4ed8;
+      --radius: 8px; --danger: #e03e3e; --danger-hover: #c53030;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1e; --bg2: #2a2a2a; --fg: #e8e8e8; --fg2: #aaa; --fg3: #666;
+        --border: #3a3a3a; --accent: #3b82f6; --accent-hover: #2563eb;
+        --danger: #f87171; --danger-hover: #ef4444;
+        --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--fg);
+      font-size: 14px; line-height: 1.5;
+    }
+    .container {
+      max-width: 960px; margin: 0 auto; padding: 24px 32px 48px;
+    }
+    header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 28px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    header svg { flex-shrink: 0; }
+    header h1 { font-size: 18px; font-weight: 600; }
+
+    /* Sections */
+    .section { margin-bottom: 32px; }
+    .section-title {
+      font-size: 15px; font-weight: 600; margin-bottom: 16px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+
+    /* Font settings */
+    .font-grid {
+      display: grid; grid-template-columns: 140px 1fr; gap: 10px 16px;
+      align-items: center;
+    }
+    .font-grid label { font-size: 13px; color: var(--fg2); text-align: right; }
+    .font-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .font-picker {
+      position: relative; flex: 1; max-width: 360px;
+    }
+
+    /* Color picker */
+    .color-picker-wrap {
+      display: flex; align-items: center; gap: 2px; flex-shrink: 0;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 2px; background: var(--bg2);
+      opacity: 0.5; transition: opacity 0.15s;
+    }
+    .color-picker-wrap.active,
+    .color-picker-wrap:hover { opacity: 1; }
+    .color-input {
+      width: 28px; height: 28px; border: none; padding: 0;
+      cursor: pointer; background: transparent;
+      border-radius: 4px;
+    }
+    .color-input::-webkit-color-swatch-wrapper { padding: 1px; }
+    .color-input::-webkit-color-swatch { border: 1px solid var(--border); border-radius: 3px; }
+    .color-clear {
+      width: 20px; height: 20px; border: none; background: transparent;
+      color: var(--fg3); cursor: pointer; font-size: 14px;
+      border-radius: 4px; display: flex; align-items: center; justify-content: center;
+      padding: 0;
+    }
+    .color-clear:hover { background: var(--border); color: var(--danger); }
+    .font-picker input {
+      width: 100%; padding: 6px 10px; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--bg2); color: var(--fg);
+      font-size: 13px; outline: none;
+    }
+    .font-picker input:focus { border-color: var(--accent); }
+    .font-picker input::placeholder { color: var(--fg3); }
+    .font-dropdown {
+      display: none; position: absolute; top: 100%; left: 0; right: 0;
+      max-height: 360px; overflow-y: auto; background: var(--bg);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); z-index: 100; margin-top: 2px;
+    }
+    .font-dropdown.open { display: block; }
+    .font-dropdown-item {
+      padding: 6px 10px; cursor: pointer; font-size: 13px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .font-dropdown-item:hover { background: var(--bg2); }
+    .font-dropdown-item .preview { color: var(--fg3); font-size: 12px; }
+    .font-dropdown-empty {
+      padding: 10px; text-align: center; color: var(--fg3); font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Cover section layout */
+    .cover-layout {
+      display: grid; grid-template-columns: 1fr 300px; gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 700px) {
+      .cover-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Cover controls */
+    .cover-controls { display: flex; flex-direction: column; gap: 12px; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 14px; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--bg2); color: var(--fg);
+      font-size: 13px; cursor: pointer; transition: background 0.15s;
+    }
+    .btn:hover { background: var(--border); }
+    .btn-primary {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-danger {
+      background: transparent; color: var(--danger); border-color: var(--danger);
+    }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+
+    /* Text element list */
+    .text-elements { display: flex; flex-direction: column; gap: 8px; }
+    .text-element {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 8px;
+      align-items: center;
+      padding: 10px; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .text-element input[type="text"] {
+      width: 100%; padding: 4px 8px; border: 1px solid var(--border);
+      border-radius: 4px; background: var(--bg); color: var(--fg);
+      font-size: 13px; outline: none;
+    }
+    .text-element input[type="text"]:focus { border-color: var(--accent); }
+    .text-element select {
+      padding: 4px 8px; border: 1px solid var(--border);
+      border-radius: 4px; background: var(--bg); color: var(--fg);
+      font-size: 13px; outline: none; cursor: pointer;
+    }
+    .text-element .btn-delete {
+      padding: 4px 8px; border: none; background: transparent;
+      color: var(--danger); cursor: pointer; font-size: 16px;
+      border-radius: 4px;
+    }
+    .text-element .btn-delete:hover { background: var(--bg); }
+
+    /* Auto slots (page title / author) */
+    .auto-slots { display: flex; flex-direction: column; gap: 8px; }
+    .auto-slot {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 8px;
+      align-items: center;
+      padding: 10px; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .auto-slot input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+    .auto-slot label { font-size: 13px; color: var(--fg2); cursor: pointer; }
+    .auto-slot select {
+      padding: 4px 8px; border: 1px solid var(--border);
+      border-radius: 4px; background: var(--bg); color: var(--fg);
+      font-size: 13px; outline: none; cursor: pointer;
+    }
+
+    /* Cover preview */
+    .preview-panel { position: sticky; top: 24px; }
+    .preview-label { font-size: 12px; color: var(--fg2); margin-bottom: 6px; }
+    .preview-frame {
+      position: relative; width: 100%;
+      aspect-ratio: 210 / 297; /* A4 ratio */
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 4px; overflow: hidden; box-shadow: var(--shadow);
+    }
+    .preview-frame * { user-select: none; }
+    .preview-element {
+      position: absolute; cursor: grab; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; max-width: 90%;
+    }
+    .preview-element.dragging { cursor: grabbing; opacity: 0.8; }
+    .preview-element.fixed { cursor: default; opacity: 0.5; }
+    .preview-image {
+      position: absolute; cursor: grab;
+    }
+    .preview-image img {
+      width: 100%; height: 100%; object-fit: contain;
+    }
+    .preview-image.dragging { cursor: grabbing; opacity: 0.8; }
+    .resize-handle {
+      position: absolute; width: 10px; height: 10px;
+      background: var(--accent); border: 1px solid #fff;
+      border-radius: 2px; cursor: nwse-resize;
+      right: -5px; bottom: -5px;
+    }
+
+    /* Footer actions */
+    .actions {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 20px; border-top: 1px solid var(--border);
+    }
+    .save-status {
+      font-size: 13px; color: var(--accent); opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .save-status.visible { opacity: 1; }
+
+    /* Hidden file input */
+    #cover-file-input { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <svg width="24" height="24" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+        <rect width="128" height="128" rx="22" fill="#1e3a5f"/>
+        <text x="18" y="82" font-family="Arial Black, sans-serif" font-weight="900" font-size="62" fill="white">N</text>
+        <g transform="translate(76,54)" fill="#4fc3f7">
+          <rect x="7" y="0" width="10" height="26" rx="3"/>
+          <polygon points="0,22 12,38 24,22"/>
+        </g>
+      </svg>
+      <h1 id="options-title">Settings</h1>
+    </header>
+
+    <!-- Font Settings -->
+    <div class="section">
+      <div class="section-title" id="font-section-title">Font Settings</div>
+      <div class="font-grid" id="font-grid"></div>
+    </div>
+
+    <!-- Cover Page Settings -->
+    <div class="section">
+      <div class="section-title" id="cover-section-title">Cover Page</div>
+      <div class="cover-layout">
+        <div class="cover-controls">
+          <div class="btn-row">
+            <button class="btn" id="btn-cover-upload">Upload image</button>
+            <button class="btn btn-danger" id="btn-cover-remove" style="display:none">Remove</button>
+            <input type="file" id="cover-file-input" accept="image/*">
+          </div>
+          <div class="auto-slots" id="auto-slots"></div>
+          <div class="btn-row">
+            <button class="btn" id="btn-add-text">+ Add text</button>
+          </div>
+          <div class="text-elements" id="text-elements"></div>
+        </div>
+        <div class="preview-panel">
+          <div class="preview-label">Preview</div>
+          <div class="preview-frame" id="preview-frame"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <div>
+        <button class="btn btn-primary" id="btn-save">Save</button>
+        <span class="save-status" id="save-status">Settings saved</span>
+      </div>
+      <button class="btn" id="btn-reset">Reset to defaults</button>
+    </div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

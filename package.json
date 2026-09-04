@@ -1,0 +1,31 @@
+{
+  "name": "soma0sd-notion-export",
+  "version": "2.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "icons": "node scripts/generate-icons.mjs",
+    "build:assets": "node scripts/copy-assets.mjs",
+    "build:bg": "cross-env BUILD_ENTRY=background vite build",
+    "build:content": "cross-env BUILD_ENTRY=content vite build",
+    "build:popup": "cross-env BUILD_ENTRY=popup vite build",
+    "build:options": "cross-env BUILD_ENTRY=options vite build",
+    "build:ext": "npm run build:assets && npm run build:bg && npm run build:content && npm run build:popup && npm run build:options",
+    "build": "node scripts/generate-icons.mjs && tsc --noEmit && npm run build:ext && node scripts/zip.mjs",
+    "zip": "node scripts/zip.mjs"
+  },
+  "dependencies": {
+    "docx": "^8.5.0",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.0",
+    "@types/chrome": "^0.0.268",
+    "@types/node": "^20.0.0",
+    "archiver": "^7.0.0",
+    "cross-env": "^10.1.0",
+    "sharp": "^0.33.5",
+    "typescript": "^5.4.0",
+    "vite": "^5.2.0"
+  }
+}
