@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notion Exporter</title>
+  <style>
+    :root {
+      --bg: #fff; --fg: #1a1a1a; --fg2: #555; --border: #e0e0e0;
+      --accent: #2563eb; --radius: 8px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #1e1e1e; --fg: #e8e8e8; --fg2: #999; --border: #333; --accent: #3b82f6; }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--fg);
+      width: 240px; padding: 16px;
+      font-size: 13px;
+    }
+    header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    header svg { flex-shrink: 0; }
+    header h1 { font-size: 14px; font-weight: 600; }
+    .hint {
+      color: var(--fg2); line-height: 1.5;
+      padding: 8px 0;
+    }
+    .hint a { color: var(--accent); text-decoration: none; }
+    .settings-link {
+      padding: 10px 0 0;
+    }
+    .settings-link a {
+      display: inline-flex; align-items: center; gap: 4px;
+      color: var(--accent); text-decoration: none; font-size: 13px;
+      cursor: pointer;
+    }
+    .settings-link a:hover { text-decoration: underline; }
+    footer {
+      margin-top: 14px; padding-top: 10px;
+      border-top: 1px solid var(--border);
+      color: var(--fg2); font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <svg width="20" height="20" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+      <rect width="128" height="128" rx="22" fill="#1e3a5f"/>
+      <text x="18" y="82" font-family="Arial Black, sans-serif" font-weight="900" font-size="62" fill="white">N</text>
+      <g transform="translate(76,54)" fill="#4fc3f7">
+        <rect x="7" y="0" width="10" height="26" rx="3"/>
+        <polygon points="0,22 12,38 24,22"/>
+      </g>
+    </svg>
+    <h1 id="popup-title">Notion Exporter</h1>
+  </header>
+  <p class="hint" id="popup-hint">
+    Open any page in <strong>soma0sd</strong>'s Notion workspace.<br>
+    An <strong>Export</strong> button will appear in the top bar.<br>
+    <small style="opacity:0.6">soma0sd is the developer's nickname.</small>
+  </p>
+  <div class="settings-link">
+    <a href="#" id="open-settings">&#9881; Settings</a>
+  </div>
+  <footer>v2.0.0</footer>
+  <script src="popup.js"></script>
+</body>
+</html>

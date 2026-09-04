@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Notion Exporter"
+  },
+  "extDescription": {
+    "message": "Export Notion pages as DOCX or HWPX documents"
+  },
+  "btnLabel": {
+    "message": "Export"
+  },
+  "menuDocx": {
+    "message": "Download as DOCX"
+  },
+  "menuHwpx": {
+    "message": "Download as HWPX"
+  },
+  "toastLoading": {
+    "message": "Reading page…"
+  },
+  "toastConverting": {
+    "message": "Converting to $FORMAT$…",
+    "placeholders": {
+      "format": { "content": "$1" }
+    }
+  },
+  "toastDone": {
+    "message": "Download started"
+  },
+  "toastError": {
+    "message": "Error: $MSG$",
+    "placeholders": {
+      "msg": { "content": "$1" }
+    }
+  },
+  "tocTitle": {
+    "message": "Table of Contents"
+  },
+  "notSoma0sdPage": {
+    "message": "Open a soma0sd Notion page to export."
+  },
+  "popupTitle": {
+    "message": "Notion Exporter"
+  },
+  "optionsTitle": {
+    "message": "Settings"
+  },
+  "optionsSettingsLink": {
+    "message": "Settings"
+  }
+}

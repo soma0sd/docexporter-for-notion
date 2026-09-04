@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Notion 내보내기"
+  },
+  "extDescription": {
+    "message": "Notion 페이지를 DOCX 또는 HWPX 문서로 내려받습니다"
+  },
+  "btnLabel": {
+    "message": "내보내기"
+  },
+  "menuDocx": {
+    "message": "DOCX로 다운로드"
+  },
+  "menuHwpx": {
+    "message": "HWPX로 다운로드"
+  },
+  "toastLoading": {
+    "message": "페이지 읽는 중…"
+  },
+  "toastConverting": {
+    "message": "$FORMAT$(으)로 변환 중…",
+    "placeholders": {
+      "format": { "content": "$1" }
+    }
+  },
+  "toastDone": {
+    "message": "다운로드가 시작되었습니다"
+  },
+  "toastError": {
+    "message": "오류: $MSG$",
+    "placeholders": {
+      "msg": { "content": "$1" }
+    }
+  },
+  "tocTitle": {
+    "message": "목차"
+  },
+  "notSoma0sdPage": {
+    "message": "soma0sd Notion 페이지를 열어 사용하세요."
+  },
+  "popupTitle": {
+    "message": "Notion 내보내기"
+  },
+  "optionsTitle": {
+    "message": "설정"
+  },
+  "optionsSettingsLink": {
+    "message": "설정"
+  }
+}
