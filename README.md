@@ -250,7 +250,7 @@ Notion 기본 내보내기와 달리 표지, 자동 목차, 서식이 적용된 
 |------|------|
 | 런타임 | Chrome Extension Manifest V3 |
 | 언어 | TypeScript (ES2022) |
-| 번들러 | Vite 5 + Rollup (IIFE, 엔트리별 분리 빌드) |
+| 번들러 | Vite 6 + Rollup (IIFE, 엔트리별 분리 빌드) |
 | DOCX 생성 | `docx` v8 (Packer.toBlob) |
 | HWPX 생성 | `jszip` v3 + 수동 XML 생성 |
 | UI 격리 | Shadow DOM |
