@@ -1,8 +1,13 @@
 # DocExporter for Notion
 
-**문서내보내기 (for Notion)**
+> Notion 페이지를 표지·목차·본문이 갖춰진 DOCX · HWPX 문서로 내보내는 브라우저 확장 (Manifest V3)
 
-> Notion 페이지를 전문적인 DOCX · HWPX 문서로 한 번에 내보내는 Chrome 확장 프로그램
+| 항목 | 값 |
+|------|-----|
+| 현재 버전 | 2.0.1 (2026-09-03 빌드) |
+| 스토어 등록명 | Notion Exporter / Notion 내보내기 |
+| 지원 브라우저 | Chrome · Microsoft Edge · Whale |
+| 게시 상태 | 2026-09-04 기준 세 스토어 모두 v2.0.1 심사 중 |
 
 ---
 
@@ -13,9 +18,9 @@
 | # | 설명 | 파일 |
 |---|------|------|
 | 1 | Notion 페이지에서 내보내기 드롭다운 UI | `store/screenshot_01_dropdown.png` |
-| 2 | DOCX 출력 결과 — 표지 페이지 | `store/screenshot_02_cover.png` |
-| 3 | DOCX 출력 결과 — 본문 (제목·서식·목록) | `store/screenshot_03_body.png` |
-| 4 | DOCX 출력 결과 — 본문 (콜아웃·코드·표) | `store/screenshot_04_body2.png` |
+| 2 | DOCX 출력 결과: 표지 페이지 | `store/screenshot_02_cover.png` |
+| 3 | DOCX 출력 결과: 본문 (제목·서식·목록) | `store/screenshot_03_body.png` |
+| 4 | DOCX 출력 결과: 본문 (콜아웃·코드·표) | `store/screenshot_04_body2.png` |
 
 ---
 
@@ -23,11 +28,11 @@
 
 ### 개요
 
-DocExporter for Notion은 Notion 워크스페이스의 페이지를 **Microsoft Word(DOCX)** 또는 **한글(HWPX)** 문서 포맷으로 직접 변환·다운로드하는 Chrome 확장 프로그램입니다.
+DocExporter for Notion은 Notion 워크스페이스의 페이지를 **Microsoft Word(DOCX)** 또는 **한글(HWPX)** 문서 포맷으로 직접 변환·다운로드하는 브라우저 확장 프로그램입니다. Chromium 계열인 Chrome, Microsoft Edge, Whale 에서 같은 패키지로 동작합니다.
 
 Notion의 내장 내보내기 기능과 달리, DocExporter는 **표지 → 자동 목차 → 본문**의 완성된 문서 구조를 한 번의 클릭으로 생성합니다. 별도의 서버 없이 브라우저 내에서 모든 변환이 이루어지며, 원본 데이터는 외부로 전송되지 않습니다.
 
-### v2.0.1 — 노션 도메인 이전 대응
+### v2.0.1: 노션 도메인 이전 대응
 
 Notion이 앱 주소를 `app.notion.com` 으로 옮기면서 확장이 페이지에 주입되지 않던 문제를 해결했습니다.
 
@@ -36,7 +41,10 @@ Notion이 앱 주소를 `app.notion.com` 으로 옮기면서 확장이 페이지
   노션 호스트로 호출하면 인증 정보가 함께 가지 않습니다.
 - 이미지 자격 증명 판정을 노션 호스트 공용 판별 함수로 통일했습니다(DOCX·HWPX 변환기 공통).
 
-### v2.0.0 — 완전히 새로 만들어진 버전
+수정본으로 `app.notion.com` 샘플 페이지를 내보내 DOCX 787KB, HWPX 872KB 가 정상 생성되는 것을
+확인했습니다. 스토어 스크린샷 1번도 새 도메인 화면으로 교체했습니다.
+
+### v2.0.0: 완전히 새로 만들어진 버전
 
 이번 v2.0.0은 기존 코드를 전면 폐기하고 **처음부터 새로 설계·구현**한 버전입니다.
 
@@ -45,27 +53,27 @@ Notion이 앱 주소를 `app.notion.com` 으로 옮기면서 확장이 페이지
 - Manifest V3 기반으로 완전히 재작성
 - TypeScript + Vite 5 번들링 파이프라인 도입
 - 엔트리 포인트별 분리 빌드 (background / content / popup)
-- Shadow DOM 기반 UI 격리 — Notion 페이지 스타일과 충돌 없음
+- Shadow DOM 기반 UI 격리: Notion 페이지 스타일과 충돌 없음
 
 **새로운 문서 변환 엔진**
 
 - `docx` v8 라이브러리 기반 DOCX 생성 엔진 전면 교체
 - `jszip` + 수동 XML 조립 방식의 HWPX 네이티브 생성
 - Notion 내부 API(`loadPageChunk`)에서 블록 트리를 직접 읽어 중간 표현(IR)으로 변환
-- 재귀적 블록 트리 순회 — 중첩 토글, 중첩 목록, 중첩 컬럼 완전 지원
+- 재귀적 블록 트리 순회: 중첩 토글, 중첩 목록, 중첩 컬럼 완전 지원
 
 **새로운 기능**
 
-- 자동 목차(TOC) 생성 — DOCX는 Word TOC 필드, HWPX는 HWP TOC 컨트롤 방식
-- 헤딩 자동 정규화 — 페이지에 실제 사용된 헤딩 중 최상위를 H1으로 재매핑
-- 머메이드(Mermaid) 다이어그램 지원 — DOM에서 렌더링된 SVG를 캡처하여 PNG 이미지로 삽입
-- 콜아웃 블록 변환 — 이모지 + 배경색이 살아있는 셀 테이블로 변환
-- 인용문 블록 — 왼쪽 테두리가 있는 스타일 테이블로 변환
-- Column List(다단 레이아웃) — 무테두리 표로 변환하여 열 구조 유지
-- 이미지 자동 크기 조정 — 본문/셀 너비를 초과하지 않도록 비율 유지
-- 토스트 알림 — 변환 진행 단계(읽기 → 변환 → 완료/오류)를 실시간 표시
-- 다크/라이트 테마 자동 전환 — `prefers-color-scheme` 감지
-- 한국어/영어 다국어 UI — Chrome i18n 자동 감지
+- 자동 목차(TOC) 생성: DOCX는 Word TOC 필드, HWPX는 HWP TOC 컨트롤 방식
+- 헤딩 자동 정규화: 페이지에 실제 사용된 헤딩 중 최상위를 H1으로 재매핑
+- 머메이드(Mermaid) 다이어그램 지원: DOM에서 렌더링된 SVG를 캡처하여 PNG 이미지로 삽입
+- 콜아웃 블록 변환: 이모지 + 배경색이 살아있는 셀 테이블로 변환
+- 인용문 블록: 왼쪽 테두리가 있는 스타일 테이블로 변환
+- Column List(다단 레이아웃): 무테두리 표로 변환하여 열 구조 유지
+- 이미지 자동 크기 조정: 본문/셀 너비를 초과하지 않도록 비율 유지
+- 토스트 알림: 변환 진행 단계(읽기 → 변환 → 완료/오류)를 실시간 표시
+- 다크/라이트 테마 자동 전환: `prefers-color-scheme` 감지
+- 한국어/영어 다국어 UI: Chrome i18n 자동 감지
 
 ---
 
@@ -105,6 +113,31 @@ Notion이 앱 주소를 `app.notion.com` 으로 옮기면서 확장이 페이지
 
 ---
 
+## 설정 (옵션 페이지)
+
+확장 관리 화면의 **확장 프로그램 옵션**에서 출력 서식을 지정합니다. 설정은 `chrome.storage.local` 에
+저장되며 내보내기 시 자동으로 적용됩니다.
+
+### 글꼴 · 색상 슬롯
+
+여덟 개 항목을 각각 지정합니다: 전체(global) · 제목1 · 제목2 · 제목3 · 본문 · 인용 · 코드 · 캡션.
+
+- 글꼴은 직접 입력하거나 `queryLocalFonts()` 로 읽어 온 로컬 글꼴 목록에서 선택합니다(권한 필요)
+- 색상은 색상 선택기로 지정하며, 비워 두면 변환기 기본값을 사용합니다
+- 코드 슬롯만 기본 글꼴이 `Courier New` 로 지정되어 있습니다
+
+### 표지 디자이너
+
+- 표지 이미지 업로드 (최대 너비 1200px JPEG 로 자동 리사이즈)
+- 텍스트 요소를 드래그·리사이즈로 자유 배치, 스타일 7종 (title / subtitle / heading1~3 / body / caption)
+- 페이지 제목과 작성자를 자동으로 채우는 슬롯 제공 (각각 사용 여부 선택)
+- A4(210×297mm) 기준 미리보기 캔버스에서 배치를 확인하며 조정
+
+미리보기 · DOCX · HWPX 세 곳의 좌표는 `src/converters/coverGeometry.ts` 가 EMU · twip · HWPUNIT · px 로
+변환해 동일하게 유지합니다.
+
+---
+
 ## 키워드
 
 `Notion`, `DOCX`, `HWPX`, `문서 변환`, `내보내기`, `Export`, `Word`, `한글`, `생산성`, `문서 내보내기`
@@ -113,53 +146,28 @@ Notion이 앱 주소를 `app.notion.com` 으로 옮기면서 확장이 페이지
 
 ## 확장 세부정보
 
-### English
+스토어 등록에 사용하는 문구 정본은 [store/listing_v2.0.1.md](store/listing_v2.0.1.md) 에 있습니다.
+설명 전문, 단일 목적 설명, 권한별 정당화, 심사 참고 사항이 스토어에 붙여 넣을 형태로 정리되어 있습니다.
 
-**Name:** DocExporter for Notion
+| 항목 | English | 한국어 |
+|------|---------|--------|
+| 이름 | Notion Exporter | Notion 내보내기 |
+| 요약 | Export Notion pages as DOCX or HWPX documents | Notion 페이지를 DOCX 또는 HWPX 문서로 내려받습니다 |
 
-**Summary:** Export Notion pages as professionally formatted DOCX or HWPX documents with cover page, table of contents, and full block conversion — all within your browser.
+설명 문구에 담은 기능 요약은 다음과 같습니다.
 
-**Description:**
+- Notion 상단 바에서 바로 내보내기: 내보내기 메뉴에서 DOCX 또는 HWPX 선택
+- 표지 디자이너: 표지 이미지 등록, 텍스트 요소 자유 배치, 페이지 제목과 작성자 자동 삽입
+- 글꼴과 색상 지정: 전체, 제목1, 제목2, 제목3, 본문, 인용, 코드, 캡션 등 8개 항목별 설정
+- 실제 목차 생성: DOCX 는 Word 목차 필드, HWPX 는 한글 목차 컨트롤로 삽입
+- 제목 수준 자동 정규화, 이미지 자동 크기 조정, 머메이드 다이어그램 이미지 변환
+- 현재 Notion 앱 주소(app.notion.com)와 기존 www.notion.so 주소를 모두 지원
+- 완전한 클라이언트 사이드 처리: 데이터가 외부 서버로 전송되지 않음
 
-DocExporter for Notion converts your Notion pages into polished Microsoft Word (DOCX) or Korean Hancom (HWPX) documents with a single click.
+### 데이터 사용 공시
 
-Key features:
-- One-click export from the Notion top bar — choose DOCX or HWPX
-- Generates a complete document structure: cover page → auto-generated table of contents → body content
-- Supports 20+ Notion block types including headings, lists, code blocks, callouts, quotes, tables, images, column layouts, and Mermaid diagrams
-- Automatic heading normalization — remaps the highest heading level used to H1
-- Images are auto-resized to fit within page/cell boundaries while maintaining aspect ratio
-- Column layouts are converted to borderless tables preserving the multi-column structure
-- Mermaid diagrams are captured from the page and embedded as PNG images
-- Real-time toast notifications showing conversion progress
-- Dark/light theme support following system preferences
-- Bilingual UI (English / Korean) with Chrome i18n auto-detection
-- Fully client-side processing — your data never leaves the browser
-- Built on Manifest V3, TypeScript, Vite 5, and the docx v8 library
-
-### 한국어
-
-**이름:** 문서내보내기 (for Notion)
-
-**요약:** Notion 페이지를 표지, 자동 목차, 본문이 포함된 전문적인 DOCX 또는 HWPX 문서로 변환합니다. 모든 처리는 브라우저 내에서 이루어집니다.
-
-**설명:**
-
-DocExporter for Notion은 Notion 페이지를 클릭 한 번으로 Microsoft Word(DOCX) 또는 한컴오피스(HWPX) 문서로 변환하는 Chrome 확장 프로그램입니다.
-
-주요 기능:
-- Notion 상단 바에서 원클릭 내보내기 — DOCX 또는 HWPX 선택
-- 완성된 문서 구조 자동 생성: 표지 → 자동 목차 → 본문
-- 20여 종 Notion 블록 지원: 제목, 목록, 코드 블록, 콜아웃, 인용문, 표, 이미지, 다단 레이아웃, 머메이드 다이어그램
-- 헤딩 자동 정규화 — 페이지에서 실제 사용된 최상위 헤딩을 제목 1로 자동 재매핑
-- 이미지 자동 크기 조정 — 페이지/셀 너비에 맞춰 비율 유지
-- 다단 레이아웃 → 무테두리 표로 변환하여 열 구조 유지
-- 머메이드 다이어그램 → 페이지에서 렌더링된 SVG를 캡처하여 PNG 이미지로 삽입
-- 변환 진행 상태를 실시간 토스트 알림으로 표시
-- 시스템 설정에 따른 다크/라이트 테마 자동 전환
-- 한국어/영어 다국어 UI (Chrome i18n 자동 감지)
-- 완전한 클라이언트 사이드 처리 — 데이터가 외부 서버로 전송되지 않음
-- Manifest V3, TypeScript, Vite 5, docx v8 라이브러리 기반
+수집하는 데이터가 없으므로 스토어 개인정보 항목은 전부 "해당 없음" 으로 신고했습니다. 원격 코드도
+사용하지 않으며, 모든 코드는 패키지에 포함되어 있습니다.
 
 ---
 
@@ -173,10 +181,12 @@ DocExporter for Notion은 Notion 페이지를 클릭 한 번으로 Microsoft Wor
 ## 업로드 파일
 
 - 확장 ZIP: `store/DocExporter_for_Notion_v2.0.1.zip`
-- 파일 크기: 약 200KB
+- 파일 크기: 201,863바이트 (약 197KB)
 - 포함 파일: `manifest.json`, `background.js`, `content.js`, `popup.js`, `popup.html`, `options.js`,
   `options.html`, `icons/`, `_locales/`
 - 이전 게시본은 `store/DocExporter_for_Notion_v2.0.0.zip` 으로 남겨 둡니다.
+- 스크린샷은 1번만 새 도메인 화면으로 교체했고, 2번부터 4번까지는 출력 결과라 기존 파일을 그대로 씁니다.
+  이전 도메인 캡처는 `store/_prev/` 에 보관합니다.
 
 ---
 
@@ -192,6 +202,7 @@ DocExporter for Notion은 Notion 페이지를 클릭 한 번으로 Microsoft Wor
 | UI 격리 | Shadow DOM |
 | 테마 | CSS `prefers-color-scheme` |
 | 국제화 | Chrome i18n + 내장 번들 (en/ko) |
+| 설정 저장 | `chrome.storage.local` (키 `exportSettings`) |
 | 아이콘 | `sharp` (SVG → PNG 래스터화) |
 
 ---
@@ -207,10 +218,12 @@ npm run build
 
 # 개별 빌드
 npm run icons          # SVG → 16/32/48/128px PNG
-npm run build:assets   # manifest, icons, locales, popup.html 복사
+npm run build:assets   # manifest, icons, locales, popup.html, options.html 복사
 npm run build:bg       # background.js
 npm run build:content  # content.js (docx + jszip 포함, ~900KB)
 npm run build:popup    # popup.js
+npm run build:options  # options.js (옵션 페이지)
+npm run build:ext      # assets + 엔트리 4종 일괄
 npm run zip            # dist/ → ZIP
 ```
 
