@@ -5,11 +5,14 @@ import { resolve } from "path";
 // Set BUILD_ENTRY env var: "content" | "background" | "popup"
 const entry = process.env["BUILD_ENTRY"] ?? "content";
 
+// Vite 8's native config loader does not inject __dirname; import.meta.dirname is the replacement.
+const rootDir = import.meta.dirname;
+
 const entryMap: Record<string, string> = {
-  background: resolve(__dirname, "src/background.ts"),
-  content:    resolve(__dirname, "src/content.ts"),
-  popup:      resolve(__dirname, "src/popup.ts"),
-  options:    resolve(__dirname, "src/options.ts"),
+  background: resolve(rootDir, "src/background.ts"),
+  content:    resolve(rootDir, "src/content.ts"),
+  popup:      resolve(rootDir, "src/popup.ts"),
+  options:    resolve(rootDir, "src/options.ts"),
 };
 
 export default defineConfig({
@@ -26,6 +29,6 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: { "@": resolve(__dirname, "src") },
+    alias: { "@": resolve(rootDir, "src") },
   },
 });

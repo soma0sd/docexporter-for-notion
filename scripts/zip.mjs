@@ -1,4 +1,4 @@
-import archiver from "archiver";
+import { ZipArchive } from "archiver";
 import { createWriteStream, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -13,7 +13,7 @@ if (!existsSync(distDir)) {
 }
 
 const output = createWriteStream(outputZip);
-const archive = archiver("zip", { zlib: { level: 9 } });
+const archive = new ZipArchive({ zlib: { level: 9 } });
 
 output.on("close", () => {
   console.log(`ZIP created: ${outputZip} (${archive.pointer()} bytes)`);
