@@ -8,6 +8,10 @@ dist/
 .claude/
 CLAUDE.md
 .claudeignore
+AGENTS.md
+
+# 로컬 작업 현황 보드 (로컬 전용, 추적 제외)
+task.md
 
 # OS·에디터 잔여 파일
 .DS_Store
