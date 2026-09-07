@@ -2,13 +2,37 @@
 
 > Notion 페이지를 표지·목차·본문이 갖춰진 DOCX · HWPX 문서로 내보내는 브라우저 확장 (Manifest V3)
 
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-v2.0.1-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/haemhllhnpfdpjabhjfpngmkhbbmlcnm)
+[![Microsoft Edge Add-ons](https://img.shields.io/badge/Edge-v2.0.1-0078D4?logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm)
+[![Whale Store](https://img.shields.io/badge/Whale-v2.0.1-03C75A?logo=naver&logoColor=white)](https://store.whale.naver.com/detail/ijkgdnompkniflhnonpkppdmejjbopdk)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-34A853)](manifest.json)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+
+**사용 설명서: <https://soma0sd.github.io/docexporter-for-notion/>** (한국어 · English)
+
 | 항목 | 값 |
 |------|-----|
 | 현재 버전 | 2.0.1 (2026-09-03 빌드) |
 | 스토어 등록명 | Notion Exporter / Notion 내보내기 |
-| 지원 브라우저 | Chrome · Microsoft Edge · Whale |
-| 게시 상태 | Edge 게시 완료(2026-09-04) · Chrome·Whale 심사 중 |
-| 설치 | [Microsoft Edge 애드온 스토어](https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm) |
+| 지원 브라우저 | Chrome · Microsoft Edge · Whale (Chromium 계열) |
+| 게시 상태 | 세 스토어 모두 v2.0.1 게시 완료 (2026-09) |
+| 사용 설명서 | [GitHub Pages](https://soma0sd.github.io/docexporter-for-notion/) |
+
+---
+
+## 설치
+
+| 브라우저 | 스토어 | 확장 ID | 게시일 |
+|---|---|---|---|
+| Google Chrome | [Chrome 웹 스토어](https://chromewebstore.google.com/detail/haemhllhnpfdpjabhjfpngmkhbbmlcnm) | `haemhllhnpfdpjabhjfpngmkhbbmlcnm` | 2026-09-05 |
+| Microsoft Edge | [Edge 애드온 스토어](https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm) | `aimbjdofpnlakdgmhaacbdkocjbmdfkm` | 2026-09-04 |
+| Naver Whale | [웨일 스토어](https://store.whale.naver.com/detail/ijkgdnompkniflhnonpkppdmejjbopdk) | `ijkgdnompkniflhnonpkppdmejjbopdk` | 2026-09-07 |
+
+세 스토어 모두 같은 패키지를 씁니다. Edge·웨일에서도 Chrome 웹 스토어 확장을 설치할 수 있으나,
+브라우저 전용 스토어에서 설치해야 갱신이 자동으로 적용됩니다.
+
+설치 후 사용법·설정·문제 해결은 [사용 설명서](https://soma0sd.github.io/docexporter-for-notion/)에 정리되어 있습니다.
 
 ---
 
@@ -241,7 +265,6 @@ Notion 기본 내보내기와 달리 표지, 자동 목차, 서식이 적용된 
   `options.html`, `icons/`, `_locales/`
 - 이전 게시본은 `store/DocExporter_for_Notion_v2.0.0.zip` 으로 남겨 둡니다.
 - 스크린샷은 1번만 새 도메인 화면으로 교체했고, 2번부터 4번까지는 출력 결과라 기존 파일을 그대로 씁니다.
-  이전 도메인 캡처는 `store/_prev/` 에 보관합니다.
 
 ---
 
@@ -284,6 +307,14 @@ npm run zip            # dist/ → ZIP
 
 ---
 
+## 문서
+
+- 사용 설명서(GitHub Pages): <https://soma0sd.github.io/docexporter-for-notion/>
+- 설명서 원본: `docs/index.html` (`main` 브랜치의 `/docs` 폴더를 Pages 소스로 사용)
+- 설명서에 쓰는 이미지는 `docs/images/` 에 두며, `store/` 의 스토어 스크린샷을 복사한 것입니다.
+
+---
+
 ## 라이선스
 
-MIT
+MIT ([LICENSE](LICENSE))

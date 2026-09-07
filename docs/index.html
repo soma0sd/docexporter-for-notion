@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="ko" data-lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocExporter for Notion - 사용 설명서</title>
+<meta name="description" content="Notion 페이지를 표지·목차·본문이 갖춰진 DOCX 또는 HWPX 문서로 내보내는 브라우저 확장의 사용 설명서">
+<link rel="icon" href="images/icon.png">
+<style>
+:root{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-card:#ffffff;
+  --fg:#1b1f24; --fg-dim:#5b6572; --line:#e3e6ea;
+  --accent:#1f3f77; --accent-soft:#e8eefb;
+  --chrome:#4285f4; --edge:#0f6cbd; --whale:#03c75a;
+  --radius:10px; --maxw:920px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#12151a; --bg-soft:#181c22; --bg-card:#1b2028;
+    --fg:#e6e9ee; --fg-dim:#9aa4b2; --line:#2a313b;
+    --accent:#8ab0ff; --accent-soft:#1d2735;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard","Malgun Gothic",
+    "Apple SD Gothic Neo",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.7; -webkit-text-size-adjust:100%;
+}
+html[data-lang="ko"] [data-l="en"]{display:none}
+html[data-lang="en"] [data-l="ko"]{display:none}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px}
+a{color:var(--accent)}
+code{
+  font-family:ui-monospace,SFMono-Regular,"SF Mono",Consolas,"Liberation Mono",monospace;
+  font-size:.9em; background:var(--bg-soft); border:1px solid var(--line);
+  border-radius:5px; padding:.1em .38em;
+}
+
+/* Header */
+header{background:var(--bg-soft); border-bottom:1px solid var(--line); padding:40px 0 32px}
+.brand{display:flex; align-items:center; gap:14px; margin-bottom:6px}
+.brand img{width:48px; height:48px; border-radius:10px}
+.brand h1{margin:0; font-size:1.6rem; letter-spacing:-.02em}
+.tagline{margin:0 0 22px; color:var(--fg-dim); font-size:.98rem}
+.langbar{display:flex; gap:6px; margin-bottom:24px}
+.langbar button{
+  font:inherit; font-size:.82rem; padding:5px 14px; cursor:pointer;
+  border:1px solid var(--line); background:var(--bg-card); color:var(--fg-dim);
+  border-radius:999px;
+}
+.langbar button[aria-pressed="true"]{
+  background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600;
+}
+
+/* Store buttons */
+.stores{display:flex; flex-wrap:wrap; gap:10px}
+.store{
+  display:flex; align-items:center; gap:10px; text-decoration:none;
+  background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:10px 16px; color:var(--fg); min-width:200px; transition:border-color .15s,transform .15s;
+}
+.store:hover{border-color:var(--accent); transform:translateY(-1px)}
+.store .dot{width:10px; height:10px; border-radius:50%; flex:none}
+.store b{display:block; font-size:.92rem; line-height:1.3}
+.store span span{display:block; font-size:.76rem; color:var(--fg-dim)}
+
+/* Layout */
+main{padding:8px 0 60px}
+section{padding-top:36px}
+h2{
+  font-size:1.28rem; letter-spacing:-.01em; margin:0 0 14px;
+  padding-bottom:8px; border-bottom:2px solid var(--accent-soft);
+}
+h3{font-size:1.02rem; margin:26px 0 8px}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 12px; padding-left:22px}
+li{margin:4px 0}
+.toc{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:var(--radius);
+  padding:16px 20px; margin-top:28px;
+}
+.toc ol{margin:6px 0 0; padding-left:20px; columns:2; column-gap:28px}
+@media (max-width:600px){.toc ol{columns:1}}
+.toc a{text-decoration:none}
+.toc a:hover{text-decoration:underline}
+
+/* Steps */
+.steps{list-style:none; padding:0; counter-reset:s}
+.steps li{counter-increment:s; position:relative; padding-left:42px; margin:0 0 14px}
+.steps li::before{
+  content:counter(s); position:absolute; left:0; top:1px;
+  width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff;
+  font-size:.82rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+}
+
+/* Figures & tables */
+figure{margin:20px 0}
+figure img{
+  width:100%; height:auto; display:block;
+  border:1px solid var(--line); border-radius:var(--radius);
+}
+figcaption{margin-top:8px; font-size:.84rem; color:var(--fg-dim); text-align:center}
+.shots{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+.shots figure{margin:0}
+.tablewrap{overflow-x:auto; margin:0 0 14px}
+table{border-collapse:collapse; width:100%; font-size:.9rem; min-width:420px}
+th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top}
+th{background:var(--bg-soft); font-weight:600; white-space:nowrap}
+td.y{color:#1a7f45; font-weight:600}
+@media (prefers-color-scheme: dark){td.y{color:#5fd08a}}
+
+.note{
+  background:var(--accent-soft); border-left:3px solid var(--accent);
+  border-radius:0 var(--radius) var(--radius) 0; padding:12px 16px; margin:16px 0;
+  font-size:.92rem;
+}
+.faq{border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:10px}
+.faq summary{
+  cursor:pointer; padding:12px 16px; font-weight:600; font-size:.95rem;
+  background:var(--bg-soft); list-style:none;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::before{content:"\25B8  "; color:var(--accent)}
+.faq[open] summary::before{content:"\25BE  "}
+.faq .body{padding:12px 16px; border-top:1px solid var(--line)}
+.faq .body p:last-child,.faq .body ul:last-child{margin-bottom:0}
+
+footer{
+  border-top:1px solid var(--line); background:var(--bg-soft);
+  padding:26px 0; font-size:.86rem; color:var(--fg-dim);
+}
+footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <img src="images/icon.png" alt="DocExporter for Notion">
+      <h1>DocExporter for Notion</h1>
+    </div>
+    <p class="tagline">
+      <span data-l="ko">Notion 페이지를 표지 · 목차 · 본문이 갖춰진 DOCX 또는 HWPX 문서로 내보내는 브라우저 확장입니다.</span>
+      <span data-l="en">A browser extension that turns a Notion page into a DOCX or HWPX document with a cover page, a table of contents, and styled body content.</span>
+    </p>
+    <div class="langbar" role="group" aria-label="Language">
+      <button type="button" data-set-lang="ko" aria-pressed="true">한국어</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">English</button>
+    </div>
+    <div class="stores">
+      <a class="store" href="https://chromewebstore.google.com/detail/haemhllhnpfdpjabhjfpngmkhbbmlcnm" target="_blank" rel="noopener">
+        <span class="dot" style="background:var(--chrome)"></span>
+        <span><b>Chrome</b><span data-l="ko">Chrome 웹 스토어 · 2.0.1</span><span data-l="en">Chrome Web Store · 2.0.1</span></span>
+      </a>
+      <a class="store" href="https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm" target="_blank" rel="noopener">
+        <span class="dot" style="background:var(--edge)"></span>
+        <span><b>Microsoft Edge</b><span data-l="ko">Edge 애드온 · 2.0.1</span><span data-l="en">Edge Add-ons · 2.0.1</span></span>
+      </a>
+      <a class="store" href="https://store.whale.naver.com/detail/ijkgdnompkniflhnonpkppdmejjbopdk" target="_blank" rel="noopener">
+        <span class="dot" style="background:var(--whale)"></span>
+        <span><b>Whale</b><span data-l="ko">웨일 스토어 · 2.0.1</span><span data-l="en">Whale Store · 2.0.1</span></span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <nav class="toc">
+    <div data-l="ko"><strong>목차</strong>
+      <ol>
+        <li><a href="#install">설치</a></li>
+        <li><a href="#quickstart">빠른 시작</a></li>
+        <li><a href="#output">출력 문서 구성</a></li>
+        <li><a href="#settings">설정 (옵션 페이지)</a></li>
+        <li><a href="#blocks">변환 지원 블록</a></li>
+        <li><a href="#faq">문제 해결</a></li>
+        <li><a href="#privacy">개인정보와 권한</a></li>
+        <li><a href="#about">저장소와 라이선스</a></li>
+      </ol>
+    </div>
+    <div data-l="en"><strong>Contents</strong>
+      <ol>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#quickstart">Quick start</a></li>
+        <li><a href="#output">What the document looks like</a></li>
+        <li><a href="#settings">Settings (options page)</a></li>
+        <li><a href="#blocks">Supported blocks</a></li>
+        <li><a href="#faq">Troubleshooting</a></li>
+        <li><a href="#privacy">Privacy and permissions</a></li>
+        <li><a href="#about">Repository and license</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- 1. INSTALL -->
+  <section id="install">
+    <div data-l="ko">
+      <h2>1. 설치</h2>
+      <p>Chromium 계열 브라우저 세 곳에 같은 패키지로 등록되어 있습니다. 사용 중인 브라우저의 스토어에서 설치하십시오.</p>
+      <ul>
+        <li><a href="https://chromewebstore.google.com/detail/haemhllhnpfdpjabhjfpngmkhbbmlcnm" target="_blank" rel="noopener">Chrome 웹 스토어</a> - Google Chrome</li>
+        <li><a href="https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm" target="_blank" rel="noopener">Microsoft Edge 애드온</a> - Microsoft Edge</li>
+        <li><a href="https://store.whale.naver.com/detail/ijkgdnompkniflhnonpkppdmejjbopdk" target="_blank" rel="noopener">웨일 스토어</a> - 네이버 웨일</li>
+      </ul>
+      <p>설치 후 별도의 로그인이나 계정 연결은 필요하지 않습니다. 브라우저에 이미 로그인된 Notion 세션을 그대로 사용합니다.</p>
+      <div class="note">Edge 와 웨일에서도 Chrome 웹 스토어 확장을 설치할 수 있으나, 각 브라우저 전용 스토어에서 설치하면 갱신이 자동으로 적용됩니다.</div>
+    </div>
+    <div data-l="en">
+      <h2>1. Install</h2>
+      <p>The same package is published to three Chromium-based browser stores. Install from the store for the browser you use.</p>
+      <ul>
+        <li><a href="https://chromewebstore.google.com/detail/haemhllhnpfdpjabhjfpngmkhbbmlcnm" target="_blank" rel="noopener">Chrome Web Store</a> - Google Chrome</li>
+        <li><a href="https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm" target="_blank" rel="noopener">Microsoft Edge Add-ons</a> - Microsoft Edge</li>
+        <li><a href="https://store.whale.naver.com/detail/ijkgdnompkniflhnonpkppdmejjbopdk" target="_blank" rel="noopener">Whale Store</a> - Naver Whale</li>
+      </ul>
+      <p>No sign-in or account linking is required. The extension reuses the Notion session already open in your browser.</p>
+      <div class="note">Edge and Whale can install Chrome Web Store extensions directly, but installing from your browser's own store keeps updates automatic.</div>
+    </div>
+  </section>
+
+  <!-- 2. QUICK START -->
+  <section id="quickstart">
+    <div data-l="ko">
+      <h2>2. 빠른 시작</h2>
+      <ol class="steps">
+        <li>Notion 페이지를 엽니다. <code>app.notion.com</code> 과 기존 <code>www.notion.so</code> 주소를 모두 지원합니다.</li>
+        <li>페이지 상단 바 오른쪽에 추가된 <strong>내보내기</strong> 버튼을 누릅니다.</li>
+        <li>드롭다운에서 <strong>DOCX로 다운로드</strong> 또는 <strong>HWPX로 다운로드</strong> 를 선택합니다.</li>
+        <li>진행 알림이 끝나면 브라우저 다운로드 폴더에 파일이 저장됩니다.</li>
+      </ol>
+      <figure>
+        <img src="images/screenshot_01_dropdown.png" alt="Notion 페이지 상단 바의 내보내기 드롭다운">
+        <figcaption>상단 바의 내보내기 버튼과 형식 선택 메뉴</figcaption>
+      </figure>
+      <ul>
+        <li>파일 이름은 페이지 제목을 그대로 사용합니다. 파일 이름에 쓸 수 없는 문자는 <code>_</code> 로 바뀝니다.</li>
+        <li>이미지가 많은 페이지는 변환에 수십 초가 걸릴 수 있습니다. 알림이 사라질 때까지 페이지를 닫지 마십시오.</li>
+        <li>현재 열려 있는 페이지 한 건만 변환합니다. 하위 페이지는 각각 따로 내보내야 합니다.</li>
+      </ul>
+    </div>
+    <div data-l="en">
+      <h2>2. Quick start</h2>
+      <ol class="steps">
+        <li>Open a Notion page. Both <code>app.notion.com</code> and the legacy <code>www.notion.so</code> address are supported.</li>
+        <li>Click the <strong>Export</strong> button added to the right of the page top bar.</li>
+        <li>Choose <strong>Download as DOCX</strong> or <strong>Download as HWPX</strong> from the dropdown.</li>
+        <li>When the progress toast finishes, the file is saved to your browser's download folder.</li>
+      </ol>
+      <figure>
+        <img src="images/screenshot_01_dropdown.png" alt="Export dropdown in the Notion top bar">
+        <figcaption>The Export button and format menu in the top bar</figcaption>
+      </figure>
+      <ul>
+        <li>The file is named after the page title. Characters that cannot appear in a filename become <code>_</code>.</li>
+        <li>Pages with many images can take tens of seconds. Keep the page open until the toast disappears.</li>
+        <li>Only the page currently open is converted. Sub-pages must be exported one by one.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. OUTPUT -->
+  <section id="output">
+    <div data-l="ko">
+      <h2>3. 출력 문서 구성</h2>
+      <p>내보낸 문서는 <strong>표지 → 목차 → 본문</strong> 세 부분으로 만들어집니다. 용지는 A4(210 × 297 mm) 기준입니다.</p>
+      <div class="shots">
+        <figure>
+          <img src="images/screenshot_02_cover.png" alt="DOCX 출력 결과의 표지 페이지">
+          <figcaption>표지 - 페이지 제목과 작성자 자동 삽입</figcaption>
+        </figure>
+        <figure>
+          <img src="images/screenshot_03_body.png" alt="DOCX 출력 결과의 본문 - 제목과 목록">
+          <figcaption>본문 - 제목 수준, 서식, 목록</figcaption>
+        </figure>
+        <figure>
+          <img src="images/screenshot_04_body2.png" alt="DOCX 출력 결과의 본문 - 콜아웃과 표">
+          <figcaption>본문 - 인용문, 콜아웃, 코드, 표</figcaption>
+        </figure>
+      </div>
+      <h3>제목 수준 자동 정규화</h3>
+      <p>페이지에서 실제로 사용된 제목 중 가장 높은 수준을 문서의 제목 1로 재배치합니다. 제목 1 없이 제목 2와 제목 3만 쓴 페이지라면 제목 2가 문서의 제목 1이 되고 제목 3이 제목 2가 됩니다. 목차가 한 단계씩 밀려 들어가는 것을 막기 위한 처리입니다.</p>
+      <h3>목차</h3>
+      <p>DOCX 는 Word 의 목차 필드로, HWPX 는 한글 목차 형식으로 넣습니다.</p>
+      <div class="note">Word 에서 목차 자리가 비어 보이거나 안내 문구만 보이면, 목차 영역을 클릭한 뒤 <code>F9</code> 를 눌러 필드를 갱신하십시오. Word 는 문서를 열 때 필드를 자동으로 계산하지 않습니다.</div>
+    </div>
+    <div data-l="en">
+      <h2>3. What the document looks like</h2>
+      <p>An exported document is assembled in three parts: <strong>cover page → table of contents → body</strong>, on A4 paper (210 × 297 mm).</p>
+      <div class="shots">
+        <figure>
+          <img src="images/screenshot_02_cover.png" alt="Cover page of the DOCX output">
+          <figcaption>Cover - page title and author filled in automatically</figcaption>
+        </figure>
+        <figure>
+          <img src="images/screenshot_03_body.png" alt="DOCX body with headings and lists">
+          <figcaption>Body - heading levels, text styles, lists</figcaption>
+        </figure>
+        <figure>
+          <img src="images/screenshot_04_body2.png" alt="DOCX body with callouts and tables">
+          <figcaption>Body - quotes, callouts, code, tables</figcaption>
+        </figure>
+      </div>
+      <h3>Heading normalization</h3>
+      <p>The highest heading level actually used on the page becomes Heading 1 in the document. On a page that uses only Heading 2 and Heading 3, Heading 2 becomes Heading 1 and Heading 3 becomes Heading 2. This keeps the table of contents from starting one level too deep.</p>
+      <h3>Table of contents</h3>
+      <p>DOCX uses a Word TOC field; HWPX uses the Hangul table-of-contents format.</p>
+      <div class="note">If the TOC area in Word looks empty or shows only a placeholder, click inside it and press <code>F9</code> to update the field. Word does not evaluate fields automatically when a document is opened.</div>
+    </div>
+  </section>
+
+  <!-- 4. SETTINGS -->
+  <section id="settings">
+    <div data-l="ko">
+      <h2>4. 설정 (옵션 페이지)</h2>
+      <p>출력 서식은 확장의 옵션 페이지에서 지정합니다. 설정은 브라우저 로컬 저장소에 보관되며 내보내기 때 자동으로 적용됩니다.</p>
+      <h3>옵션 페이지 여는 방법</h3>
+      <ul>
+        <li>브라우저 툴바의 확장 아이콘을 우클릭 → <strong>옵션</strong></li>
+        <li>또는 확장 관리 화면(<code>chrome://extensions</code>, <code>edge://extensions</code>, <code>whale://extensions</code>)에서 이 확장의 <strong>세부정보 → 확장 프로그램 옵션</strong></li>
+      </ul>
+      <h3>글꼴과 색상</h3>
+      <p>여덟 개 항목에 글꼴과 글자색을 각각 지정합니다.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>항목</th><th>적용 대상</th></tr></thead>
+          <tbody>
+            <tr><td>전체</td><td>아래 항목에서 따로 지정하지 않은 모든 문단</td></tr>
+            <tr><td>제목 1 / 2 / 3</td><td>정규화된 뒤의 제목 수준</td></tr>
+            <tr><td>본문</td><td>일반 문단, 목록, 표 안의 글</td></tr>
+            <tr><td>인용</td><td>인용문 블록</td></tr>
+            <tr><td>코드</td><td>코드 블록과 인라인 코드 (기본값 <code>Courier New</code>)</td></tr>
+            <tr><td>캡션</td><td>이미지 설명 등 보조 문구</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li>글꼴 이름은 직접 입력하거나, 입력란을 눌러 시스템에 설치된 글꼴 목록에서 고를 수 있습니다. 목록을 읽으려면 브라우저의 로컬 글꼴 접근 권한을 한 번 허용해야 합니다.</li>
+        <li>색상을 비워 두면 변환기 기본값을 씁니다.</li>
+        <li>문서를 열 컴퓨터에 없는 글꼴을 지정하면 그 컴퓨터의 대체 글꼴로 표시됩니다.</li>
+      </ul>
+      <h3>표지 디자이너</h3>
+      <ul>
+        <li>표지 이미지를 올리면 최대 너비 1200픽셀 JPEG 로 자동 축소해 저장합니다.</li>
+        <li>텍스트 요소를 추가하고 미리보기 위에서 끌어 옮기거나 크기를 조절합니다. 스타일은 제목 · 부제 · 제목1~3 · 본문 · 캡션 일곱 가지입니다.</li>
+        <li>페이지 제목과 작성자는 자동으로 채우는 슬롯이 따로 있으며, 각각 사용 여부를 켜고 끌 수 있습니다.</li>
+        <li>미리보기는 A4 비율 기준이며, 여기서 잡은 위치가 DOCX 와 HWPX 에 같은 좌표로 반영됩니다.</li>
+      </ul>
+      <div class="note">변경한 내용은 <strong>저장</strong> 을 눌러야 반영됩니다. <strong>기본값으로 되돌리기</strong> 를 누르면 글꼴 · 색상 · 표지 설정이 모두 초기화됩니다.</div>
+    </div>
+    <div data-l="en">
+      <h2>4. Settings (options page)</h2>
+      <p>Output formatting is configured on the extension's options page. Settings are stored in local browser storage and applied automatically on every export.</p>
+      <h3>Opening the options page</h3>
+      <ul>
+        <li>Right-click the extension icon in the browser toolbar → <strong>Options</strong></li>
+        <li>Or open the extensions page (<code>chrome://extensions</code>, <code>edge://extensions</code>, <code>whale://extensions</code>) and choose <strong>Details → Extension options</strong></li>
+      </ul>
+      <h3>Fonts and colors</h3>
+      <p>A font and a text color can be set for each of eight slots.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Slot</th><th>Applies to</th></tr></thead>
+          <tbody>
+            <tr><td>Global</td><td>Every paragraph not covered by a more specific slot</td></tr>
+            <tr><td>Heading 1 / 2 / 3</td><td>Heading levels after normalization</td></tr>
+            <tr><td>Body</td><td>Paragraphs, lists, and text inside tables</td></tr>
+            <tr><td>Quote</td><td>Quote blocks</td></tr>
+            <tr><td>Code</td><td>Code blocks and inline code (defaults to <code>Courier New</code>)</td></tr>
+            <tr><td>Caption</td><td>Image captions and other secondary text</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li>Type a font name directly, or click the field to pick from the fonts installed on your system. Reading that list requires granting local font access once.</li>
+        <li>Leave a color empty to use the converter default.</li>
+        <li>A font that is not installed on the machine opening the document is substituted by that machine.</li>
+      </ul>
+      <h3>Cover page designer</h3>
+      <ul>
+        <li>An uploaded cover image is resized to a JPEG of at most 1200 pixels wide before it is stored.</li>
+        <li>Add text elements and drag or resize them on the preview. Seven styles are available: title, subtitle, heading 1-3, body, and caption.</li>
+        <li>Separate slots fill in the page title and author automatically; each can be turned on or off.</li>
+        <li>The preview uses A4 proportions, and the positions set there map to the same coordinates in both DOCX and HWPX.</li>
+      </ul>
+      <div class="note">Changes take effect only after you press <strong>Save</strong>. <strong>Reset to defaults</strong> clears the font, color, and cover settings.</div>
+    </div>
+  </section>
+
+  <!-- 5. BLOCKS -->
+  <section id="blocks">
+    <div data-l="ko">
+      <h2>5. 변환 지원 블록</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Notion 블록</th><th>DOCX</th><th>HWPX</th><th>비고</th></tr></thead>
+          <tbody>
+            <tr><td>문단</td><td class="y">지원</td><td class="y">지원</td><td>굵게 · 기울임 · 취소선 · 밑줄 · 인라인 코드 · 링크 · 글자색</td></tr>
+            <tr><td>제목 1 / 2 / 3</td><td class="y">지원</td><td class="y">지원</td><td>수준 자동 정규화</td></tr>
+            <tr><td>글머리표 목록</td><td class="y">지원</td><td class="y">지원</td><td>중첩 유지</td></tr>
+            <tr><td>번호 목록</td><td class="y">지원</td><td class="y">지원</td><td>중첩 유지</td></tr>
+            <tr><td>할 일 목록</td><td class="y">지원</td><td class="y">지원</td><td>☑ / ☐ 기호로 표시</td></tr>
+            <tr><td>인용문</td><td class="y">지원</td><td class="y">지원</td><td>왼쪽 테두리 스타일</td></tr>
+            <tr><td>콜아웃</td><td class="y">지원</td><td class="y">지원</td><td>이모지와 배경색 유지</td></tr>
+            <tr><td>코드 블록</td><td class="y">지원</td><td class="y">지원</td><td>등폭 글꼴 + 배경</td></tr>
+            <tr><td>토글</td><td class="y">지원</td><td class="y">지원</td><td>펼쳐진 형태로 변환</td></tr>
+            <tr><td>표</td><td class="y">지원</td><td class="y">지원</td><td>머리글 행 강조</td></tr>
+            <tr><td>이미지</td><td class="y">지원</td><td class="y">지원</td><td>너비에 맞춰 비율 유지 축소</td></tr>
+            <tr><td>다단 레이아웃</td><td class="y">지원</td><td class="y">지원</td><td>무테두리 표로 열 구조 유지</td></tr>
+            <tr><td>북마크</td><td class="y">지원</td><td class="y">지원</td><td>DOCX 는 하이퍼링크, HWPX 는 URL 문자열</td></tr>
+            <tr><td>구분선</td><td class="y">지원</td><td class="y">지원</td><td></td></tr>
+            <tr><td>머메이드 다이어그램</td><td class="y">지원</td><td class="y">지원</td><td>화면에 그려진 도형을 PNG 로 변환</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>변환에서 제외되는 블록</h3>
+      <p>하위 페이지, 데이터베이스, 동기화 블록, 수식, 동영상, 오디오, 파일 첨부, 임베드, PDF, 링크된 멘션은 변환 시 조용히 건너뜁니다. 오류로 처리되지 않으므로 결과 문서에서 해당 자리는 비어 있습니다.</p>
+    </div>
+    <div data-l="en">
+      <h2>5. Supported blocks</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Notion block</th><th>DOCX</th><th>HWPX</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Paragraph</td><td class="y">Yes</td><td class="y">Yes</td><td>Bold, italic, strikethrough, underline, inline code, links, text color</td></tr>
+            <tr><td>Heading 1 / 2 / 3</td><td class="y">Yes</td><td class="y">Yes</td><td>Levels normalized</td></tr>
+            <tr><td>Bulleted list</td><td class="y">Yes</td><td class="y">Yes</td><td>Nesting preserved</td></tr>
+            <tr><td>Numbered list</td><td class="y">Yes</td><td class="y">Yes</td><td>Nesting preserved</td></tr>
+            <tr><td>To-do list</td><td class="y">Yes</td><td class="y">Yes</td><td>Rendered as ☑ / ☐</td></tr>
+            <tr><td>Quote</td><td class="y">Yes</td><td class="y">Yes</td><td>Left border styling</td></tr>
+            <tr><td>Callout</td><td class="y">Yes</td><td class="y">Yes</td><td>Emoji and background color kept</td></tr>
+            <tr><td>Code block</td><td class="y">Yes</td><td class="y">Yes</td><td>Monospace font with background</td></tr>
+            <tr><td>Toggle</td><td class="y">Yes</td><td class="y">Yes</td><td>Converted in expanded form</td></tr>
+            <tr><td>Table</td><td class="y">Yes</td><td class="y">Yes</td><td>Header row emphasized</td></tr>
+            <tr><td>Image</td><td class="y">Yes</td><td class="y">Yes</td><td>Scaled to fit, aspect ratio kept</td></tr>
+            <tr><td>Column layout</td><td class="y">Yes</td><td class="y">Yes</td><td>Borderless table keeps the column structure</td></tr>
+            <tr><td>Bookmark</td><td class="y">Yes</td><td class="y">Yes</td><td>Hyperlink in DOCX, URL text in HWPX</td></tr>
+            <tr><td>Divider</td><td class="y">Yes</td><td class="y">Yes</td><td></td></tr>
+            <tr><td>Mermaid diagram</td><td class="y">Yes</td><td class="y">Yes</td><td>The rendered diagram is captured as a PNG</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Blocks that are skipped</h3>
+      <p>Sub-pages, databases, synced blocks, equations, video, audio, file attachments, embeds, PDFs, and linked mentions are skipped silently. They are not treated as errors, so their place in the output document is simply empty.</p>
+    </div>
+  </section>
+
+  <!-- 6. FAQ -->
+  <section id="faq">
+    <div data-l="ko">
+      <h2>6. 문제 해결</h2>
+
+      <details class="faq">
+        <summary>내보내기 버튼이 보이지 않습니다</summary>
+        <div class="body">
+          <ul>
+            <li>주소가 <code>app.notion.com</code> 또는 <code>www.notion.so</code> 인지 확인하십시오. 데스크톱 앱이 아니라 웹 브라우저에서 열어야 합니다.</li>
+            <li>확장 관리 화면에서 이 확장이 사용 설정되어 있는지 확인하십시오.</li>
+            <li>확장을 설치하거나 갱신한 직후라면 Notion 탭을 새로 고침하십시오.</li>
+            <li>페이지가 완전히 로드된 뒤에 버튼이 붙습니다. 잠시 기다렸다가 다시 확인하십시오.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>이미지가 문서에 들어가지 않습니다</summary>
+        <div class="body">
+          <p>이미지는 화면에 실제로 표시된 뒤에야 주소를 확인할 수 있습니다. 긴 페이지는 끝까지 스크롤해 이미지가 모두 보이는 상태에서 내보내십시오. 외부 사이트에 올려 둔 이미지는 그 사이트가 접근을 막으면 생략될 수 있습니다.</p>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>머메이드 다이어그램이 비어 있습니다</summary>
+        <div class="body">
+          <p>다이어그램은 페이지에 그려진 도형을 그대로 캡처합니다. 토글 안에 접혀 있거나 아직 화면에 그려지지 않은 다이어그램은 담기지 않습니다. 토글을 펼쳐 도형이 보이는 상태에서 내보내십시오.</p>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>Word 에서 목차가 비어 있습니다</summary>
+        <div class="body">
+          <p>목차 영역을 클릭한 뒤 <code>F9</code> 를 눌러 필드를 갱신하십시오. 문서 전체를 선택(<code>Ctrl</code>+<code>A</code>)한 뒤 <code>F9</code> 를 눌러도 됩니다. Word 가 문서를 열 때 필드를 자동으로 계산하지 않기 때문입니다.</p>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>하위 페이지 내용이 담기지 않습니다</summary>
+        <div class="body">
+          <p>현재 열려 있는 페이지 한 건만 변환합니다. 하위 페이지는 각각 열어 따로 내보내십시오. 데이터베이스도 같은 이유로 변환에서 제외됩니다.</p>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>변환이 중간에 멈추거나 오류 알림이 뜹니다</summary>
+        <div class="body">
+          <ul>
+            <li>Notion 에 로그인된 상태인지 확인하십시오. 세션이 끊기면 페이지 내용을 읽지 못합니다.</li>
+            <li>변환 중에는 탭을 닫거나 다른 페이지로 이동하지 마십시오.</li>
+            <li>확장을 갱신한 직후에는 기존 탭의 연결이 끊길 수 있습니다. 탭을 새로 고침한 뒤 다시 시도하십시오.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>HWPX 파일이 열리지 않습니다</summary>
+        <div class="body">
+          <p>HWPX 는 한글의 개방형 문서 형식입니다. 이 형식을 지원하는 한컴오피스 한글에서 열어야 합니다. 형식을 지원하지 않는 뷰어를 쓴다면 DOCX 로 내보내 사용하십시오.</p>
+        </div>
+      </details>
+    </div>
+
+    <div data-l="en">
+      <h2>6. Troubleshooting</h2>
+
+      <details class="faq">
+        <summary>The Export button does not appear</summary>
+        <div class="body">
+          <ul>
+            <li>Check that the address is <code>app.notion.com</code> or <code>www.notion.so</code>. The page must be open in a web browser, not the desktop app.</li>
+            <li>Confirm the extension is enabled on your browser's extensions page.</li>
+            <li>Reload the Notion tab if you just installed or updated the extension.</li>
+            <li>The button is attached after the page finishes loading. Wait a moment and look again.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>Images are missing from the document</summary>
+        <div class="body">
+          <p>An image address can only be resolved once the image has actually rendered. On a long page, scroll to the end so every image is displayed before exporting. Images hosted on external sites may be skipped if that site blocks access.</p>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>A Mermaid diagram comes out empty</summary>
+        <div class="body">
+          <p>Diagrams are captured from the shapes drawn on the page. A diagram collapsed inside a toggle, or one that has not rendered yet, cannot be captured. Expand the toggle so the diagram is visible, then export.</p>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>The table of contents is empty in Word</summary>
+        <div class="body">
+          <p>Click inside the TOC area and press <code>F9</code> to update the field, or select the whole document (<code>Ctrl</code>+<code>A</code>) and press <code>F9</code>. Word does not evaluate fields automatically when a document is opened.</p>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>Sub-page content is not included</summary>
+        <div class="body">
+          <p>Only the page currently open is converted. Open each sub-page and export it separately. Databases are excluded for the same reason.</p>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>The conversion stalls or shows an error toast</summary>
+        <div class="body">
+          <ul>
+            <li>Make sure you are signed in to Notion. Without a session the page content cannot be read.</li>
+            <li>Do not close the tab or navigate away while the conversion is running.</li>
+            <li>Right after the extension updates, existing tabs can lose their connection. Reload the tab and try again.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>The HWPX file will not open</summary>
+        <div class="body">
+          <p>HWPX is the open document format used by Hancom Office Hangul. Open it in a Hangul version that supports the format. If your viewer does not support it, export to DOCX instead.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 7. PRIVACY -->
+  <section id="privacy">
+    <div data-l="ko">
+      <h2>7. 개인정보와 권한</h2>
+      <p>모든 변환은 브라우저 안에서 끝납니다. 페이지 내용, 이미지, 설정값은 어떤 외부 서버로도 전송되지 않으며 확장이 수집하는 데이터는 없습니다. 원격 코드도 사용하지 않고 실행에 필요한 코드는 전부 설치 패키지에 들어 있습니다.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>권한</th><th>사용 이유</th></tr></thead>
+          <tbody>
+            <tr><td><code>activeTab</code></td><td>내보내기를 누른 그 탭의 Notion 페이지를 읽기 위해</td></tr>
+            <tr><td><code>downloads</code></td><td>변환된 DOCX · HWPX 파일을 저장하기 위해</td></tr>
+            <tr><td><code>storage</code></td><td>글꼴 · 색상 · 표지 설정을 브라우저에 보관하기 위해</td></tr>
+            <tr><td>Notion 도메인 접근</td><td>페이지 블록 구조를 읽고 페이지에 포함된 이미지를 내려받기 위해</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>설정값은 브라우저 로컬 저장소에만 남으며 확장을 삭제하면 함께 지워집니다.</p>
+    </div>
+    <div data-l="en">
+      <h2>7. Privacy and permissions</h2>
+      <p>Every conversion completes inside the browser. Page content, images, and settings are never sent to any external server, and the extension collects no data. No remote code is used; everything it runs ships inside the installed package.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Permission</th><th>Why it is needed</th></tr></thead>
+          <tbody>
+            <tr><td><code>activeTab</code></td><td>To read the Notion page in the tab where Export was clicked</td></tr>
+            <tr><td><code>downloads</code></td><td>To save the converted DOCX or HWPX file</td></tr>
+            <tr><td><code>storage</code></td><td>To keep font, color, and cover settings in the browser</td></tr>
+            <tr><td>Notion domain access</td><td>To read the page block structure and fetch the images it contains</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Settings live only in local browser storage and are removed when the extension is uninstalled.</p>
+    </div>
+  </section>
+
+  <!-- 8. ABOUT -->
+  <section id="about">
+    <div data-l="ko">
+      <h2>8. 저장소와 라이선스</h2>
+      <ul>
+        <li>소스 코드: <a href="https://github.com/soma0sd/docexporter-for-notion" target="_blank" rel="noopener">github.com/soma0sd/docexporter-for-notion</a></li>
+        <li>문제 신고와 기능 제안: <a href="https://github.com/soma0sd/docexporter-for-notion/issues" target="_blank" rel="noopener">GitHub Issues</a></li>
+        <li>현재 버전: 2.0.1 · Manifest V3 · MIT 라이선스</li>
+      </ul>
+      <p>Notion 의 내부 API 를 사용하므로 Notion 쪽 변경에 따라 동작이 달라질 수 있습니다. 버튼이 사라지거나 변환이 실패하면 GitHub Issues 로 알려 주십시오.</p>
+      <p>이 확장은 Notion Labs, Inc. 와 무관한 비공식 도구입니다.</p>
+    </div>
+    <div data-l="en">
+      <h2>8. Repository and license</h2>
+      <ul>
+        <li>Source code: <a href="https://github.com/soma0sd/docexporter-for-notion" target="_blank" rel="noopener">github.com/soma0sd/docexporter-for-notion</a></li>
+        <li>Bug reports and feature requests: <a href="https://github.com/soma0sd/docexporter-for-notion/issues" target="_blank" rel="noopener">GitHub Issues</a></li>
+        <li>Current version: 2.0.1 · Manifest V3 · MIT license</li>
+      </ul>
+      <p>The extension relies on Notion's internal API, so behavior can change when Notion changes. If the button disappears or a conversion fails, please open a GitHub issue.</p>
+      <p>This is an unofficial tool and is not affiliated with Notion Labs, Inc.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span data-l="ko">DocExporter for Notion · MIT License · 비공식 도구이며 Notion Labs, Inc. 와 관련이 없습니다.</span>
+    <span data-l="en">DocExporter for Notion · MIT License · An unofficial tool, not affiliated with Notion Labs, Inc.</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var buttons = Array.prototype.slice.call(document.querySelectorAll("[data-set-lang]"));
+
+  function apply(lang) {
+    root.setAttribute("data-lang", lang);
+    root.setAttribute("lang", lang);
+    buttons.forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-set-lang") === lang));
+    });
+    try { localStorage.setItem("docexporter-lang", lang); } catch (e) {}
+  }
+
+  var saved = null;
+  try { saved = localStorage.getItem("docexporter-lang"); } catch (e) {}
+  var initial = saved || ((navigator.language || "en").toLowerCase().indexOf("ko") === 0 ? "ko" : "en");
+  apply(initial === "ko" ? "ko" : "en");
+
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () { apply(b.getAttribute("data-set-lang")); });
+  });
+})();
+</script>
+
+</body>
+</html>
