@@ -5,11 +5,14 @@
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-v2.0.1-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/haemhllhnpfdpjabhjfpngmkhbbmlcnm)
 [![Microsoft Edge Add-ons](https://img.shields.io/badge/Edge-v2.0.1-0078D4?logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm)
 [![Whale Store](https://img.shields.io/badge/Whale-v2.0.1-03C75A?logo=naver&logoColor=white)](https://store.whale.naver.com/detail/ijkgdnompkniflhnonpkppdmejjbopdk)
+[![사용 설명서](https://img.shields.io/badge/%EC%82%AC%EC%9A%A9%20%EC%84%A4%EB%AA%85%EC%84%9C-GitHub%20Pages-1F3F77?logo=readthedocs&logoColor=white)](https://soma0sd.github.io/docexporter-for-notion/)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-34A853)](manifest.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
-**사용 설명서: <https://soma0sd.github.io/docexporter-for-notion/>** (한국어 · English)
+### 📖 [사용 설명서 바로가기](https://soma0sd.github.io/docexporter-for-notion/)
+
+설치 · 사용법 · 옵션 설정 · 지원 블록 · 문제 해결을 한국어와 영어로 정리했습니다.
 
 | 항목 | 값 |
 |------|-----|
