@@ -1,12 +1,12 @@
-# 스토어 등록 문구 (v2.1.0)
+# 스토어 등록 문구 (v2.1.1)
 
-> 2026-11-16 기준. v2.1.0 제출 문구입니다. 버전이 바뀌면 이 문서를 새 버전 이름으로 옮겨 정본으로 사용합니다.
+> 2026-11-16 기준. v2.1.1 제출 문구입니다(v2.1.0 이 Chrome 에서 미사용 권한 `activeTab` 으로 거부되어 권한을 빼고 재제출). 버전이 바뀌면 이 문서를 새 버전 이름으로 옮겨 정본으로 사용합니다.
 
 ## 업로드 파일
 
 | 항목 | 값 |
 |------|-----|
-| 확장 패키지 | `store/DocExporter_for_Notion_v2.1.0.zip` (약 200KB) |
+| 확장 패키지 | `store/DocExporter_for_Notion_v2.1.1.zip` (약 200KB) |
 | 아이콘 | `store/icon128.png` |
 | 스크린샷 순서 | `screenshot_01_dropdown.png` → `02_cover.png` → `03_body.png` → `04_body2.png` |
 
@@ -88,12 +88,6 @@ This extension has one purpose: converting the Notion page the user is currently
 
 ## 권한 정당화 (Permission justification)
 
-### activeTab
-
-```
-activeTab is used to run the export on the Notion page the user is actively viewing at the moment they click the extension's Export button. The extension needs that tab to read the page identifier and the rendered content it cannot get otherwise, such as embedded images and Mermaid diagrams. No other tab is read and nothing happens without the user clicking Export.
-```
-
 ### downloads
 
 ```
@@ -126,6 +120,10 @@ Host access to notion.so and notion.com is required because the extension export
 ## 심사 참고 사항 (Notes for certification)
 
 ```
+What changed in 2.1.1
+
+The unused activeTab permission is removed (2.1.0 was rejected for requesting it). The extension now requests only downloads, storage and the Notion and image host permissions.
+
 What changed in 2.1.0
 
 Conversion quality fixes and HWPX formatting support. No new permissions and no change to the data the extension accesses.
@@ -160,6 +158,7 @@ Notes for the reviewer
 ## 새로운 기능 (웨일 스토어 업데이트 안내)
 
 ```
+- 사용하지 않던 activeTab 권한을 제거했습니다
 - 접힌 토글 안의 내용과 콜아웃 본문이 빠지던 문제를 고쳤습니다
 - HWPX: 굵게·기울임·밑줄·취소선·글자색·링크 서식, 번호 목록 번호, 중첩 목록 들여쓰기, 표지 문구, 목차 목록을 반영합니다
 - DOCX: 코드 블록 줄바꿈을 유지하고, 서로 떨어진 번호 목록이 1부터 다시 시작합니다

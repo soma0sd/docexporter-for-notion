@@ -16,10 +16,10 @@
 
 | 항목 | 값 |
 |------|-----|
-| 현재 버전 | 2.1.0 (2026-11-16 빌드) |
+| 현재 버전 | 2.1.1 (2026-11-16 빌드) |
 | 스토어 등록명 | Notion Exporter / Notion 내보내기 |
 | 지원 브라우저 | Chrome · Microsoft Edge · Whale (Chromium 계열) |
-| 게시 상태 | v2.1.0 세 스토어 제출 (2026-11-16, 심사 중), 게시 전까지 스토어 배포본은 v2.0.1 |
+| 게시 상태 | v2.1.1 Chrome·Edge 제출, 웨일은 v2.1.0 심사 중 (2026-11-16), 게시 전까지 스토어 배포본은 v2.0.1 |
 | 사용 설명서 | [GitHub Pages](https://soma0sd.github.io/docexporter-for-notion/) |
 
 ---
@@ -59,6 +59,12 @@
 DocExporter for Notion은 Notion 워크스페이스의 페이지를 **Microsoft Word(DOCX)** 또는 **한글(HWPX)** 문서 포맷으로 직접 변환·다운로드하는 브라우저 확장 프로그램입니다. Chromium 계열인 Chrome, Microsoft Edge, Whale 에서 같은 패키지로 동작합니다.
 
 Notion의 내장 내보내기 기능과 달리, DocExporter는 **표지 → 자동 목차 → 본문**의 완성된 문서 구조를 한 번의 클릭으로 생성합니다. 별도의 서버 없이 브라우저 내에서 모든 변환이 이루어지며, 원본 데이터는 외부로 전송되지 않습니다.
+
+### v2.1.1: 미사용 권한 제거
+
+Chrome 웹 스토어가 v2.1.0 을 "요청했지만 사용하지 않는 권한(`activeTab`)" 으로 거부해, 매니페스트에서 `activeTab` 을
+뺐습니다. 버튼은 콘텐츠 스크립트로 노션 페이지에 주입되고 내보내기는 그 페이지 안에서 처리되므로 이 권한이 필요하지
+않습니다. 기능 변경은 없습니다.
 
 ### v2.1.0: 변환 품질 개선
 
@@ -194,7 +200,7 @@ Notion이 앱 주소를 `app.notion.com` 으로 옮기면서 확장이 페이지
 
 ## 확장 세부정보
 
-스토어 등록에 사용하는 문구 정본은 [store/listing_v2.1.0.md](store/listing_v2.1.0.md) 에 있습니다.
+스토어 등록에 사용하는 문구 정본은 [store/listing_v2.1.1.md](store/listing_v2.1.1.md) 에 있습니다.
 단일 목적 설명, 권한별 정당화, 심사 참고 사항까지 스토어에 붙여 넣을 형태로 정리되어 있습니다.
 
 | 항목 | English | 한국어 |
@@ -282,11 +288,11 @@ Notion 기본 내보내기와 달리 표지, 자동 목차, 서식이 적용된 
 
 ## 업로드 파일
 
-- 확장 ZIP: `store/DocExporter_for_Notion_v2.1.0.zip`
-- 파일 크기: 205,045바이트 (약 200KB)
+- 확장 ZIP: `store/DocExporter_for_Notion_v2.1.1.zip`
+- 파일 크기: 205,033바이트 (약 200KB)
 - 포함 파일: `manifest.json`, `background.js`, `content.js`, `popup.js`, `popup.html`, `options.js`,
   `options.html`, `icons/`, `_locales/`
-- 이전 게시본은 `store/DocExporter_for_Notion_v2.0.1.zip`, `store/DocExporter_for_Notion_v2.0.0.zip` 으로 남겨 둡니다.
+- 이전 패키지는 `store/DocExporter_for_Notion_v2.1.0.zip`(웨일 심사본), `v2.0.1.zip`, `v2.0.0.zip` 으로 남겨 둡니다.
 - 스크린샷은 v2.0.1 과 같은 파일을 씁니다. 내보내기 메뉴와 DOCX 출력 화면은 이번 버전에서 바뀌지 않았습니다.
 
 ---
