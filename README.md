@@ -19,7 +19,7 @@
 | 현재 버전 | 2.1.0 (2026-11-16 빌드) |
 | 스토어 등록명 | Notion Exporter / Notion 내보내기 |
 | 지원 브라우저 | Chrome · Microsoft Edge · Whale (Chromium 계열) |
-| 게시 상태 | v2.1.0 세 스토어 제출 (2026-11-16), 게시 전까지 스토어 배포본은 v2.0.1 |
+| 게시 상태 | v2.1.0 세 스토어 제출 (2026-11-16, 심사 중), 게시 전까지 스토어 배포본은 v2.0.1 |
 | 사용 설명서 | [GitHub Pages](https://soma0sd.github.io/docexporter-for-notion/) |
 
 ---
