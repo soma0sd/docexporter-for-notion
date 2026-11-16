@@ -41,7 +41,11 @@ type MessageKey =
   | "optionsCoverStyleBody"
   | "optionsCoverStyleCaption"
   | "optionsFontColor"
-  | "optionsFontColorReset";
+  | "optionsFontColorReset"
+  | "optionsPreview"
+  | "optionsCoverTextPlaceholder"
+  | "optionsCoverTextEmpty"
+  | "optionsCoverTextDelete";
 
 const messages: Record<string, Record<MessageKey, string>> = {
   en: {
@@ -88,6 +92,10 @@ const messages: Record<string, Record<MessageKey, string>> = {
     optionsCoverStyleCaption: "Caption",
     optionsFontColor: "Text color",
     optionsFontColorReset: "Reset to default color",
+    optionsPreview: "Preview",
+    optionsCoverTextPlaceholder: "Enter text",
+    optionsCoverTextEmpty: "(empty)",
+    optionsCoverTextDelete: "Delete",
   },
   ko: {
     btnLabel: "\ub0b4\ubcf4\ub0b4\uae30",
@@ -133,6 +141,10 @@ const messages: Record<string, Record<MessageKey, string>> = {
     optionsCoverStyleCaption: "\ucea1\uc158",
     optionsFontColor: "\uae00\uc790 \uc0c9\uc0c1",
     optionsFontColorReset: "\uae30\ubcf8 \uc0c9\uc0c1\uc73c\ub85c \ucd08\uae30\ud654",
+    optionsPreview: "미리보기",
+    optionsCoverTextPlaceholder: "텍스트 입력",
+    optionsCoverTextEmpty: "(빈 텍스트)",
+    optionsCoverTextDelete: "삭제",
   },
 };
 

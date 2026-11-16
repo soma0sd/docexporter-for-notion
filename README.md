@@ -16,10 +16,10 @@
 
 | 항목 | 값 |
 |------|-----|
-| 현재 버전 | 2.0.1 (2026-09-03 빌드) |
+| 현재 버전 | 2.1.0 (2026-11-16 빌드) |
 | 스토어 등록명 | Notion Exporter / Notion 내보내기 |
 | 지원 브라우저 | Chrome · Microsoft Edge · Whale (Chromium 계열) |
-| 게시 상태 | 세 스토어 모두 v2.0.1 게시 완료 (2026-09) |
+| 게시 상태 | v2.1.0 세 스토어 제출 (2026-11-16), 게시 전까지 스토어 배포본은 v2.0.1 |
 | 사용 설명서 | [GitHub Pages](https://soma0sd.github.io/docexporter-for-notion/) |
 
 ---
@@ -59,6 +59,26 @@
 DocExporter for Notion은 Notion 워크스페이스의 페이지를 **Microsoft Word(DOCX)** 또는 **한글(HWPX)** 문서 포맷으로 직접 변환·다운로드하는 브라우저 확장 프로그램입니다. Chromium 계열인 Chrome, Microsoft Edge, Whale 에서 같은 패키지로 동작합니다.
 
 Notion의 내장 내보내기 기능과 달리, DocExporter는 **표지 → 자동 목차 → 본문**의 완성된 문서 구조를 한 번의 클릭으로 생성합니다. 별도의 서버 없이 브라우저 내에서 모든 변환이 이루어지며, 원본 데이터는 외부로 전송되지 않습니다.
+
+### v2.1.0: 변환 품질 개선
+
+실제 노션 페이지를 DOCX·HWPX 로 내보내 Word·한글에서 렌더해 점검한 결과를 반영했습니다.
+
+- 접힌 토글 안의 블록이 빠지던 문제를 고쳤습니다. 노션 페이지 조회 응답에 접힌 토글의 하위 블록이 없어,
+  누락된 블록을 현재 오리진의 노션 내부 API(`syncRecordValues`)로 추가 조회합니다.
+- 하위 블록에 본문을 두는 현재 노션 콜아웃과 인용문 아래 블록을 변환합니다.
+- **HWPX**
+  - 굵게·기울임·밑줄·취소선·글자색·링크 서식을 글자 모양으로 반영합니다.
+  - 번호 목록에 번호를 붙이고, 중첩 목록·토글 하위 문단을 수준별로 들여 씁니다.
+  - 표지 문구가 보이지 않던 문제를 고쳤습니다. 글상자를 OWPML 규격의 사각형 개체(`hp:rect` + `hp:drawText`)로 씁니다.
+  - 목차 페이지에 제목 목록을 수준별로 넣습니다(쪽 번호 없음).
+  - 그림을 가운데 정렬하고, 콜아웃 이모지의 변형 선택자(U+FE0F)를 빼서 빈 상자로 그려지지 않게 했습니다.
+- **DOCX**: 코드 블록 줄바꿈을 유지하고, 서로 떨어진 번호 목록이 1부터 다시 시작하며, 목차에 "목차" 제목 자체가 실리지 않습니다.
+- 표 머리글 행을 두 형식 모두 굵게 표시합니다.
+- 설정 화면: 글꼴 이름을 직접 입력하고 곧바로 저장해도 반영되도록 고쳤고, 남아 있던 영어 문구(미리보기·빈 텍스트·탭 제목)를 현지화했습니다.
+- 팝업: 버전을 설치본 매니페스트에서 읽어 표시합니다(기존 `v2.0.0` 고정 표기 수정).
+- 백그라운드 메시지 처리기가 이 확장이 보낸 메시지만 처리합니다.
+- 빌드 도구: vite 6.4.6, sharp 0.35.5, `readdir-glob` 4 로 `npm audit` 0건. 번들 산출물은 바이트 단위로 같습니다.
 
 ### v2.0.1: 노션 도메인 이전 대응
 
@@ -174,7 +194,7 @@ Notion이 앱 주소를 `app.notion.com` 으로 옮기면서 확장이 페이지
 
 ## 확장 세부정보
 
-스토어 등록에 사용하는 문구 정본은 [store/listing_v2.0.1.md](store/listing_v2.0.1.md) 에 있습니다.
+스토어 등록에 사용하는 문구 정본은 [store/listing_v2.1.0.md](store/listing_v2.1.0.md) 에 있습니다.
 단일 목적 설명, 권한별 정당화, 심사 참고 사항까지 스토어에 붙여 넣을 형태로 정리되어 있습니다.
 
 | 항목 | English | 한국어 |
@@ -187,7 +207,7 @@ Notion이 앱 주소를 `app.notion.com` 으로 옮기면서 확장이 페이지
 - Notion 상단 바에서 바로 내보내기: 내보내기 메뉴에서 DOCX 또는 HWPX 선택
 - 표지 디자이너: 표지 이미지 등록, 텍스트 요소 자유 배치, 페이지 제목과 작성자 자동 삽입
 - 글꼴과 색상 지정: 전체, 제목1, 제목2, 제목3, 본문, 인용, 코드, 캡션 등 8개 항목별 설정
-- 실제 목차 생성: DOCX 는 Word 목차 필드, HWPX 는 한글 목차 컨트롤로 삽입
+- 목차 자동 생성: DOCX 는 Word 목차 필드, HWPX 는 제목 수준별 목차 목록으로 삽입
 - 제목 수준 자동 정규화, 이미지 자동 크기 조정, 머메이드 다이어그램 이미지 변환
 - 현재 Notion 앱 주소(app.notion.com)와 기존 www.notion.so 주소를 모두 지원
 - 완전한 클라이언트 사이드 처리: 데이터가 외부 서버로 전송되지 않음
@@ -203,7 +223,7 @@ WHAT YOU CAN DO
 - Export straight from the Notion top bar: pick DOCX or HWPX from the Export menu
 - Design a cover page: add a cover image, place text blocks freely, and let the page title and author fill themselves in
 - Set fonts and colors for eight slots: global, heading 1, heading 2, heading 3, body, quote, code, and caption
-- Get a real table of contents: a Word TOC field in DOCX, an HWP TOC control in HWPX
+- Get a table of contents: a Word TOC field in DOCX, a heading list indented by level in HWPX
 
 WHAT IT CONVERTS
 Headings, paragraphs, bulleted and numbered lists, to-do checklists, quotes, callouts with emoji and background color, code blocks, tables, images, bookmarks, dividers, toggles, multi-column layouts, and Mermaid diagrams.
@@ -230,7 +250,7 @@ Notion 기본 내보내기와 달리 표지, 자동 목차, 서식이 적용된 
 - Notion 상단 바에서 바로 내보내기: 내보내기 메뉴에서 DOCX 또는 HWPX 선택
 - 표지 디자이너: 표지 이미지 등록, 텍스트 요소 자유 배치, 페이지 제목과 작성자 자동 삽입
 - 글꼴과 색상 지정: 전체, 제목1, 제목2, 제목3, 본문, 인용, 코드, 캡션 등 8개 항목별 설정
-- 실제 목차 생성: DOCX는 Word 목차 필드, HWPX는 한글 목차 컨트롤로 삽입
+- 목차 자동 생성: DOCX는 Word 목차 필드, HWPX는 제목 수준별 목차 목록으로 삽입
 
 변환 지원 블록
 제목, 문단, 글머리 기호 목록, 번호 목록, 할 일 목록, 인용문, 콜아웃(이모지와 배경색 유지), 코드 블록, 표, 이미지, 북마크, 구분선, 토글, 다단 레이아웃, 머메이드 다이어그램
@@ -262,12 +282,12 @@ Notion 기본 내보내기와 달리 표지, 자동 목차, 서식이 적용된 
 
 ## 업로드 파일
 
-- 확장 ZIP: `store/DocExporter_for_Notion_v2.0.1.zip`
-- 파일 크기: 201,863바이트 (약 197KB)
+- 확장 ZIP: `store/DocExporter_for_Notion_v2.1.0.zip`
+- 파일 크기: 205,045바이트 (약 200KB)
 - 포함 파일: `manifest.json`, `background.js`, `content.js`, `popup.js`, `popup.html`, `options.js`,
   `options.html`, `icons/`, `_locales/`
-- 이전 게시본은 `store/DocExporter_for_Notion_v2.0.0.zip` 으로 남겨 둡니다.
-- 스크린샷은 1번만 새 도메인 화면으로 교체했고, 2번부터 4번까지는 출력 결과라 기존 파일을 그대로 씁니다.
+- 이전 게시본은 `store/DocExporter_for_Notion_v2.0.1.zip`, `store/DocExporter_for_Notion_v2.0.0.zip` 으로 남겨 둡니다.
+- 스크린샷은 v2.0.1 과 같은 파일을 씁니다. 내보내기 메뉴와 DOCX 출력 화면은 이번 버전에서 바뀌지 않았습니다.
 
 ---
 

@@ -28,6 +28,7 @@
     header h1 { font-size: 14px; font-weight: 600; }
     .hint {
       color: var(--fg2); line-height: 1.5;
+      word-break: keep-all;
       padding: 8px 0;
     }
     .hint a { color: var(--accent); text-decoration: none; }
@@ -60,14 +61,13 @@
     <h1 id="popup-title">Notion Exporter</h1>
   </header>
   <p class="hint" id="popup-hint">
-    Open any page in <strong>soma0sd</strong>'s Notion workspace.<br>
-    An <strong>Export</strong> button will appear in the top bar.<br>
-    <small style="opacity:0.6">soma0sd is the developer's nickname.</small>
+    Open any Notion page.<br>
+    An <strong>Export</strong> button will appear in the top bar.
   </p>
   <div class="settings-link">
     <a href="#" id="open-settings">&#9881; Settings</a>
   </div>
-  <footer>v2.0.0</footer>
+  <footer id="popup-version"></footer>
   <script src="popup.js"></script>
 </body>
 </html>

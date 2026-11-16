@@ -8,6 +8,9 @@ const settingsLink = document.getElementById("open-settings");
 if (title) {
   title.textContent = isKo ? "Notion 내보내기" : "Notion Exporter";
 }
+document.title = isKo ? "Notion 내보내기" : "Notion Exporter";
+const versionEl = document.getElementById("popup-version");
+if (versionEl) versionEl.textContent = `v${chrome.runtime.getManifest().version}`;
 if (hint) {
   hint.innerHTML = isKo
     ? "Notion에서 페이지를 열면<br>상단 바에 <strong>내보내기</strong> 버튼이 표시됩니다."

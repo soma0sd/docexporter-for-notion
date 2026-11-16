@@ -21,6 +21,8 @@ function localize(): void {
   setText("btn-save", t("optionsSave"));
   setText("save-status", t("optionsSaved"));
   setText("btn-reset", t("optionsReset"));
+  setText("preview-label", t("optionsPreview"));
+  document.title = t("optionsTitle");
 }
 
 function setText(id: string, text: string): void {
@@ -134,13 +136,15 @@ function buildFontGrid(): void {
     });
 
     input.addEventListener("input", () => {
+      // 입력 즉시 반영: blur 지연 반영이면 입력 직후 저장 버튼을 누를 때 값이 빠짐
+      settings.fonts[slot.key] = input.value;
       renderFontDropdown(dropdown, input, slot.key);
     });
 
     input.addEventListener("blur", () => {
+      settings.fonts[slot.key] = input.value;
       setTimeout(() => {
         dropdown.classList.remove("open");
-        settings.fonts[slot.key] = input.value;
       }, 200);
     });
 
@@ -271,6 +275,7 @@ function buildTextElements(): void {
     const textInput = document.createElement("input");
     textInput.type = "text";
     textInput.value = elem.text;
+    textInput.placeholder = t("optionsCoverTextPlaceholder");
     textInput.addEventListener("input", () => {
       elem.text = textInput.value;
       renderPreview();
@@ -291,6 +296,7 @@ function buildTextElements(): void {
 
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "btn-delete";
+    deleteBtn.title = t("optionsCoverTextDelete");
     deleteBtn.textContent = "\u00d7";
     deleteBtn.addEventListener("click", () => {
       settings.cover.textElements = settings.cover.textElements.filter((e: CoverTextElement) => e.id !== elem.id);
@@ -424,7 +430,7 @@ function renderPreview(): void {
     const el = document.createElement("div");
     el.className = "preview-element";
     el.textContent = t(placeholderKey);
-    const r = STYLE_RENDER[slot.style];
+    const r = STYLE_RENDER[slot.style] ?? STYLE_RENDER.body;
     Object.assign(el.style, {
       left: `${slot.x}%`, top: `${slot.y}%`,
       width: `${slot.width ?? 80}%`,
@@ -440,8 +446,8 @@ function renderPreview(): void {
   for (const elem of settings.cover.textElements) {
     const el = document.createElement("div");
     el.className = "preview-element";
-    el.textContent = elem.text || "(empty)";
-    const r = STYLE_RENDER[elem.style];
+    el.textContent = elem.text || t("optionsCoverTextEmpty");
+    const r = STYLE_RENDER[elem.style] ?? STYLE_RENDER.body;
     Object.assign(el.style, {
       left: `${elem.x}%`, top: `${elem.y}%`,
       width: `${elem.width ?? 80}%`,

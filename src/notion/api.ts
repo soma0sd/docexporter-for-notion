@@ -43,6 +43,7 @@ interface BlockData {
   format?: Record<string, unknown>;
   parent_id?: string;
   parent_table?: string;
+  alive?: boolean;
   created_by_id?: string;
   last_edited_by_id?: string;
 }
@@ -108,7 +109,77 @@ export async function loadPageChunk(pageId: string): Promise<LoadPageChunkRespon
     chunkNumber++;
   }
 
+  await fillMissingBlocks(merged.recordMap.block, cleanId);
   return merged;
+}
+
+const SYNC_BATCH = 100;
+const MAX_EXTRA_BLOCKS = 5000;
+
+/**
+ * loadPageChunk leaves out the children of collapsed toggles (and toggle headings), so walk the
+ * loaded tree and fetch every referenced block that is still missing via syncRecordValues.
+ * Repeats until the tree is complete, because fetched blocks can reference further children.
+ */
+async function fillMissingBlocks(blocks: Record<string, RecordValue>, rootId: string): Promise<void> {
+  const failed = new Set<string>();
+  let fetched = 0;
+  while (fetched < MAX_EXTRA_BLOCKS) {
+    const missing = collectMissingBlockIds(blocks, rootId, failed);
+    if (missing.length === 0) return;
+    for (let i = 0; i < missing.length; i += SYNC_BATCH) {
+      const ids = missing.slice(i, i + SYNC_BATCH);
+      fetched += ids.length;
+      let got: Record<string, RecordValue | { value?: BlockData }> = {};
+      try {
+        const res = await fetch(`${apiOrigin()}/api/v3/syncRecordValues`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            requests: ids.map((id) => ({ pointer: { table: "block", id }, version: -1 })),
+          }),
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { recordMap?: { block?: typeof got } };
+          got = data.recordMap?.block ?? {};
+        }
+      } catch {
+        // Network failure: leave these blocks out rather than failing the whole export
+      }
+      for (const id of ids) {
+        const entry = got[id];
+        const inner = entry?.value as { value?: BlockData } | BlockData | undefined;
+        const raw = inner && "value" in inner && inner.value ? inner.value : (inner as BlockData | undefined);
+        // alive === false: deleted block still listed in its parent's content
+        if (raw?.id && raw.type && raw.alive !== false) blocks[id] = { spaceId: (entry as RecordValue).spaceId, value: { value: raw } };
+        else failed.add(id);
+      }
+    }
+  }
+}
+
+function collectMissingBlockIds(
+  blocks: Record<string, RecordValue>,
+  rootId: string,
+  failed: Set<string>
+): string[] {
+  const missing: string[] = [];
+  const seen = new Set<string>();
+  const stack = [rootId];
+  while (stack.length) {
+    const id = stack.pop()!;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const raw = blocks[id]?.value?.value;
+    if (!raw) {
+      if (!failed.has(id)) missing.push(id);
+      continue;
+    }
+    if (raw.type === "page" && id !== rootId) continue; // sub-pages are skipped by the extractor
+    for (const child of raw.content ?? []) stack.push(child);
+  }
+  return missing;
 }
 
 /** Extract the last path segment as page ID (handles /workspace/title-uuid and /uuid forms) */

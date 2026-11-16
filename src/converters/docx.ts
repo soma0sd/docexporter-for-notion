@@ -256,7 +256,25 @@ function scaleImagePx(
 
 type DocxChild = Paragraph | Table;
 
-type ConvertState = { firstTopHeadingSeen: boolean };
+type ConvertState = {
+  firstTopHeadingSeen: boolean;
+  /** Numbering instance per numbered list item: each run of consecutive siblings restarts at 1 */
+  listInstances: Map<string, number>;
+};
+
+function assignListInstances(blocks: Block[], out: Map<string, number> = new Map(), next = { n: 0 }): Map<string, number> {
+  let current = 0;
+  for (const b of blocks) {
+    if (b.type === "numbered_list_item") {
+      if (!current) current = ++next.n;
+      out.set(b.id, current);
+    } else {
+      current = 0;
+    }
+    if (b.children.length) assignListInstances(b.children, out, next);
+  }
+  return out;
+}
 
 async function blockToDocx(
   block: Block,
@@ -285,7 +303,7 @@ async function blockToDocx(
 
     case "quote": {
       const b = block as TextBlock;
-      return [
+      const result: DocxChild[] = [
         new Paragraph({
           children: richTextToChildren(b.rich_text, fonts, colors, "quote"),
           border: {
@@ -294,6 +312,10 @@ async function blockToDocx(
           indent: { left: convertInchesToTwip(0.3) },
         }),
       ];
+      for (const child of b.children) {
+        result.push(...(await blockToDocx(child, map, fonts, colors, state, depth + 1, maxWidthPx)));
+      }
+      return result;
     }
 
     case "heading_1":
@@ -332,7 +354,7 @@ async function blockToDocx(
       const b = block as TextBlock;
       const result: DocxChild[] = [
         new Paragraph({
-          numbering: { reference: "ne-numbered-list", level: depth },
+          numbering: { reference: "ne-numbered-list", level: depth, instance: state.listInstances.get(b.id) ?? 0 },
           children: richTextToChildren(b.rich_text, fonts, colors, "body"),
         }),
       ];
@@ -357,19 +379,36 @@ async function blockToDocx(
 
     case "callout": {
       const b = block as CalloutBlock;
-      return [
+      const calloutPara = (runs: ParagraphChild[]) =>
         new Paragraph({
-          children: [
-            new TextRun({ text: `${b.icon} `, font: resolveFont(fonts, "body") }),
-            ...richTextToChildren(b.rich_text, fonts, colors, "body"),
-          ],
+          children: runs,
           shading: { type: ShadingType.CLEAR, fill: "F7F7F7" },
           border: {
             left: { style: BorderStyle.SINGLE, size: 8, color: "AAAAAA", space: 8 },
           },
           indent: { left: convertInchesToTwip(0.2), right: convertInchesToTwip(0.2) },
-        }),
+        });
+      // Current Notion callouts keep their body in child blocks, not in the title
+      let lead = b.rich_text;
+      let rest = b.children;
+      if (!plainText(lead).trim() && rest[0]?.type === "paragraph" && rest[0].children.length === 0) {
+        lead = (rest[0] as TextBlock).rich_text;
+        rest = rest.slice(1);
+      }
+      const result: DocxChild[] = [
+        calloutPara([
+          new TextRun({ text: `${b.icon} `, font: resolveFont(fonts, "body") }),
+          ...richTextToChildren(lead, fonts, colors, "body"),
+        ]),
       ];
+      for (const child of rest) {
+        if (child.type === "paragraph" && child.children.length === 0) {
+          result.push(calloutPara(richTextToChildren((child as TextBlock).rich_text, fonts, colors, "body")));
+        } else {
+          result.push(...(await blockToDocx(child, map, fonts, colors, state, depth + 1, maxWidthPx)));
+        }
+      }
+      return result;
     }
 
     case "code": {
@@ -396,7 +435,10 @@ async function blockToDocx(
       const codeFont = resolveFont(fonts, "code") ?? "Courier New";
       return [
         new Paragraph({
-          children: [new TextRun({ text: code, font: codeFont, size: 18, color: "333333" })],
+          // A "\n" inside one run renders as a space in Word, so emit a line break per line
+          children: code.split("\n").map(
+            (line, i) => new TextRun({ text: line, font: codeFont, size: 18, color: "333333", break: i > 0 ? 1 : undefined })
+          ),
           shading: { type: ShadingType.CLEAR, fill: "F4F4F4" },
           border: {
             top: { style: BorderStyle.SINGLE, size: 4, color: "E0E0E0" },
@@ -463,7 +505,9 @@ async function blockToDocx(
           tableHeader: isHeader,
           children: row.cells.map((cell) =>
             new TableCell({
-              children: [new Paragraph({ children: richTextToChildren(cell, fonts, colors, "body") })],
+              children: [new Paragraph({
+                children: richTextToChildren(isHeader ? cell.map((r) => ({ ...r, bold: true })) : cell, fonts, colors, "body"),
+              })],
               shading: isHeader
                 ? { type: ShadingType.CLEAR, fill: "F0F0F0" }
                 : undefined,
@@ -634,7 +678,7 @@ export async function convertToDocx(page: NotionPage, settings: ExportSettings):
   const { fonts } = settings;
 
   const bodyChildren: DocxChild[] = [];
-  const state: ConvertState = { firstTopHeadingSeen: false };
+  const state: ConvertState = { firstTopHeadingSeen: false, listInstances: assignListInstances(page.blocks) };
   for (const block of page.blocks) {
     bodyChildren.push(...(await blockToDocx(block, headingMap, fonts, settings.colors, state, 0)));
   }
@@ -684,8 +728,8 @@ export async function convertToDocx(page: NotionPage, settings: ExportSettings):
         },
         children: [
           new Paragraph({
-            heading: HeadingLevel.HEADING_1,
-            children: [new TextRun({ text: tocTitle, font: resolveFont(fonts, "h1") })],
+            // Formatted like Heading 1 but without the style, so the TOC field does not list itself
+            children: [new TextRun({ text: tocTitle, font: resolveFont(fonts, "h1"), size: 32, color: "2F5496" })],
             spacing: { after: 200 },
           }),
           new TableOfContents(tocTitle, {

@@ -44,12 +44,81 @@ const STYLE = {
   BULLET: 12, NUMBERED: 13, DIVIDER: 14,
 } as const;
 
+// Extra paraPr IDs without a style of their own (nesting levels, centered images)
+const PARA = {
+  LIST_L1: 15, LIST_L2: 16, LIST_L3: 17,
+  INDENT_L1: 18, INDENT_L2: 19, INDENT_L3: 20,
+  IMAGE: 21,
+} as const;
+const PARA_PR_COUNT = 22;
+
+/** paraPr for a list item at a nesting depth (0 = top level uses the list style itself) */
+function listParaPr(styleId: number, depth: number): number {
+  if (depth <= 0) return styleId;
+  return [PARA.LIST_L1, PARA.LIST_L2, PARA.LIST_L3][Math.min(depth, 3) - 1];
+}
+
+/** paraPr for body text nested under a toggle, list item or quote */
+function indentParaPr(styleId: number, depth: number): number {
+  if (depth <= 0) return styleId;
+  return [PARA.INDENT_L1, PARA.INDENT_L2, PARA.INDENT_L3][Math.min(depth, 3) - 1];
+}
+
 // charPr IDs
 const CHAR = {
   NORMAL: 0, TITLE: 1, SUBTITLE: 2,
   H1: 3, H2: 4, H3: 5,
   CODE: 6, CAPTION: 7, GRAY: 8,
 } as const;
+const CHAR_BASE_COUNT = 9;
+
+// ── Inline formatting → charPr variants ───────────────────────────────────────
+// HWPX has no run-level bold/italic: every distinct combination needs its own charPr in
+// header.xml. Variants are registered while the section is built and emitted afterwards.
+
+interface CharVariant {
+  id: number;
+  base: number;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  strike: boolean;
+  color: string | null;
+}
+
+let _charVariants: CharVariant[] = [];
+
+const NOTION_FG_COLORS: Record<string, string> = {
+  gray: "#9B9A97", brown: "#64473A", orange: "#D9730D", yellow: "#DFAB01",
+  green: "#0F7B6C", blue: "#0B6E99", purple: "#6940A5", pink: "#AD1A72", red: "#E03E3E",
+};
+const LINK_COLOR = "#0B6E99";
+
+function charIdFor(base: number, rt: RichText): number {
+  const bold = rt.bold;
+  const italic = rt.italic;
+  const underline = rt.underline || !!rt.href;
+  const strike = rt.strikethrough;
+  const color = rt.href ? LINK_COLOR : NOTION_FG_COLORS[rt.color] ?? null;
+  if (!bold && !italic && !underline && !strike && !color) return base;
+  const found = _charVariants.find(
+    (v) => v.base === base && v.bold === bold && v.italic === italic &&
+      v.underline === underline && v.strike === strike && v.color === color
+  );
+  if (found) return found.id;
+  const variant: CharVariant = {
+    id: CHAR_BASE_COUNT + _charVariants.length, base, bold, italic, underline, strike, color,
+  };
+  _charVariants.push(variant);
+  return variant.id;
+}
+
+function plainRun(text: string): RichText {
+  return {
+    text, bold: false, italic: false, strikethrough: false,
+    underline: false, code: false, color: "default", href: null,
+  };
+}
 
 // borderFill IDs (1-based per 2011 convention; 0 = implicit none)
 const BORDER = {
@@ -193,15 +262,37 @@ function buildHeaderXml(fontTable: HwpxFontTable): string {
         <hh:relSz hangul="100" latin="100" hanja="100" japanese="100" other="100" symbol="100" user="100"/>
         <hh:offset hangul="0" latin="0" hanja="0" japanese="0" other="0" symbol="0" user="0"/>`;
 
-  const charPr = (id: number, height: number, color: string, fontId: number) =>
+  const charPr = (
+    id: number, height: number, color: string, fontId: number,
+    fx: { bold?: boolean; italic?: boolean; underline?: boolean; strike?: boolean } = {}
+  ) =>
     `<hh:charPr id="${id}" height="${height}" textColor="${color}" shadeColor="none" useFontSpace="0" useKerning="0" symMark="NONE" borderFillIDRef="${BORDER.NONE}">
         ${fontRef(fontId)}
-        ${ratioSpacing}
-        <hh:underline type="NONE" shape="SOLID" color="#000000"/>
-        <hh:strikeout shape="NONE" color="#000000"/>
+        ${ratioSpacing}${fx.italic ? "\n        <hh:italic/>" : ""}${fx.bold ? "\n        <hh:bold/>" : ""}
+        <hh:underline type="${fx.underline ? "BOTTOM" : "NONE"}" shape="SOLID" color="${color}"/>
+        <hh:strikeout shape="${fx.strike ? "SOLID" : "NONE"}" color="${color}"/>
         <hh:outline type="NONE"/>
         <hh:shadow type="NONE" color="#C0C0C0" offsetX="10" offsetY="10"/>
       </hh:charPr>`;
+
+  // Base charPr specs, indexed by CHAR id: [height, color, fontId]
+  const baseChars: Array<[number, string, number]> = [];
+  baseChars[CHAR.NORMAL]   = [1000, charColors.normal,   charFontIds.normal];
+  baseChars[CHAR.TITLE]    = [2200, charColors.title,    charFontIds.title];
+  baseChars[CHAR.SUBTITLE] = [1400, charColors.subtitle, charFontIds.subtitle];
+  baseChars[CHAR.H1]       = [1600, charColors.h1,       charFontIds.h1];
+  baseChars[CHAR.H2]       = [1400, charColors.h2,       charFontIds.h2];
+  baseChars[CHAR.H3]       = [1200, charColors.h3,       charFontIds.h3];
+  baseChars[CHAR.CODE]     = [900,  charColors.code,     charFontIds.code];
+  baseChars[CHAR.CAPTION]  = [900,  charColors.caption,  charFontIds.caption];
+  baseChars[CHAR.GRAY]     = [1000, charColors.gray,     charFontIds.gray];
+  const charPrXml = [
+    ...baseChars.map(([h, c, f], id) => charPr(id, h, c, f)),
+    ..._charVariants.map((v) => {
+      const [h, c, f] = baseChars[v.base];
+      return charPr(v.id, h, v.color ?? c, f, v);
+    }),
+  ].join("\n      ");
 
   // borderFill helpers — 2011 uses string type values
   const slashNone =
@@ -311,16 +402,8 @@ function buildHeaderXml(fontTable: HwpxFontTable): string {
       )}
       ${borderFill(BORDER.TABLE, allSolid("0.12 mm", "#000000"), fillNone)}
     </hh:borderFills>
-    <hh:charProperties itemCnt="9">
-      ${charPr(CHAR.NORMAL,   1000, charColors.normal,   charFontIds.normal)}
-      ${charPr(CHAR.TITLE,    2200, charColors.title,    charFontIds.title)}
-      ${charPr(CHAR.SUBTITLE, 1400, charColors.subtitle, charFontIds.subtitle)}
-      ${charPr(CHAR.H1,       1600, charColors.h1,       charFontIds.h1)}
-      ${charPr(CHAR.H2,       1400, charColors.h2,       charFontIds.h2)}
-      ${charPr(CHAR.H3,       1200, charColors.h3,       charFontIds.h3)}
-      ${charPr(CHAR.CODE,      900, charColors.code,     charFontIds.code)}
-      ${charPr(CHAR.CAPTION,   900, charColors.caption,  charFontIds.caption)}
-      ${charPr(CHAR.GRAY,     1000, charColors.gray,     charFontIds.gray)}
+    <hh:charProperties itemCnt="${CHAR_BASE_COUNT + _charVariants.length}">
+      ${charPrXml}
     </hh:charProperties>
     <hh:tabProperties itemCnt="1">
       <hh:tabPr id="0" autoTabLeft="0" autoTabRight="0"/>
@@ -330,7 +413,7 @@ function buildHeaderXml(fontTable: HwpxFontTable): string {
         <hh:paraHead start="1" level="1" align="LEFT" useInstWidth="1" autoIndent="1" widthAdjust="0" textOffsetType="PERCENT" textOffset="50" numFormat="DIGIT" charPrIDRef="4294967295" checkable="0">^1.</hh:paraHead>
       </hh:numbering>
     </hh:numberings>
-    <hh:paraProperties itemCnt="15">
+    <hh:paraProperties itemCnt="${PARA_PR_COUNT}">
       ${paraPr(STYLE.NORMAL,    "JUSTIFY", 0,    0,     0,    0,   0)}
       ${paraPr(STYLE.TITLE,     "CENTER",  0,    0,     0, 2000, 500)}
       ${paraPr(STYLE.SUBTITLE,  "CENTER",  0,    0,     0,  200,   0)}
@@ -353,6 +436,13 @@ function buildHeaderXml(fontTable: HwpxFontTable): string {
       ${paraPr(STYLE.BULLET,    "JUSTIFY", 1000, 0,  -500,    0,   0)}
       ${paraPr(STYLE.NUMBERED,  "JUSTIFY", 1200, 0,  -600,    0,   0)}
       ${paraPr(STYLE.DIVIDER,   "LEFT",    0,    0,     0,  100, 100, BORDER.DIVIDER)}
+      ${paraPr(PARA.LIST_L1,    "JUSTIFY", 2200, 0,  -600,    0,   0)}
+      ${paraPr(PARA.LIST_L2,    "JUSTIFY", 3200, 0,  -600,    0,   0)}
+      ${paraPr(PARA.LIST_L3,    "JUSTIFY", 4200, 0,  -600,    0,   0)}
+      ${paraPr(PARA.INDENT_L1,  "JUSTIFY", 1200, 0,     0,    0,   0)}
+      ${paraPr(PARA.INDENT_L2,  "JUSTIFY", 2200, 0,     0,    0,   0)}
+      ${paraPr(PARA.INDENT_L3,  "JUSTIFY", 3200, 0,     0,    0,   0)}
+      ${paraPr(PARA.IMAGE,      "CENTER",  0,    0,     0,  100, 100)}
     </hh:paraProperties>
     <hh:styles itemCnt="15">
       ${style(STYLE.NORMAL,   "바탕글",   "Normal",    STYLE.NORMAL,   CHAR.NORMAL)}
@@ -404,20 +494,35 @@ function pRichText(
   styleId: number,
   defaultCharId: number,
   rts: RichText[],
-  pageBreak: 0 | 1 = 0
+  pageBreak: 0 | 1 = 0,
+  paraPrId: number = styleId
 ): string {
-  if (!rts.length) return pEmpty(pageBreak);
+  if (!rts.length) return pEmpty(pageBreak, styleId);
   const pid = nextParaId();
   const runs = rts
     .map((rt) => {
-      const cid = rt.code ? CHAR.CODE : defaultCharId;
+      const cid = charIdFor(rt.code ? CHAR.CODE : defaultCharId, rt);
       return `<hp:run charPrIDRef="${cid}"><hp:t>${esc(rt.text)}</hp:t></hp:run>`;
     })
     .join("");
-  return `<hp:p id="${pid}" paraPrIDRef="${styleId}" styleIDRef="${styleId}" pageBreak="${pageBreak}" columnBreak="0" merged="0">${runs}</hp:p>`;
+  return `<hp:p id="${pid}" paraPrIDRef="${paraPrId}" styleIDRef="${styleId}" pageBreak="${pageBreak}" columnBreak="0" merged="0">${runs}</hp:p>`;
 }
 
-type ConvertState = { firstTopHeadingSeen: boolean };
+type ConvertState = {
+  firstTopHeadingSeen: boolean;
+  /** Ordinal of each numbered list item among its consecutive siblings */
+  listNumbers: Map<string, number>;
+};
+
+function assignListNumbers(blocks: Block[], out: Map<string, number> = new Map()): Map<string, number> {
+  let n = 0;
+  for (const b of blocks) {
+    n = b.type === "numbered_list_item" ? n + 1 : 0;
+    if (n) out.set(b.id, n);
+    if (b.children.length) assignListNumbers(b.children, out);
+  }
+  return out;
+}
 
 // ── Image handling ─────────────────────────────────────────────────────────────
 
@@ -518,7 +623,7 @@ function picXml(entry: ImageEntry): string {
     `<hp:outMargin left="0" right="0" top="0" bottom="0"/>` +
     `</hp:pic>`;
   const pid = nextParaId();
-  return `<hp:p id="${pid}" paraPrIDRef="${STYLE.NORMAL}" styleIDRef="${STYLE.NORMAL}" pageBreak="0" columnBreak="0" merged="0"><hp:run charPrIDRef="${CHAR.NORMAL}">${pic}</hp:run></hp:p>`;
+  return `<hp:p id="${pid}" paraPrIDRef="${PARA.IMAGE}" styleIDRef="${STYLE.NORMAL}" pageBreak="0" columnBreak="0" merged="0"><hp:run charPrIDRef="${CHAR.NORMAL}">${pic}</hp:run></hp:p>`;
 }
 
 /** Floating cover image — paper-relative absolute positioning */
@@ -560,7 +665,11 @@ function picFloatingXml(
   return `<hp:p id="${pid}" paraPrIDRef="${STYLE.NORMAL}" styleIDRef="${STYLE.NORMAL}" pageBreak="0" columnBreak="0" merged="0"><hp:run charPrIDRef="${CHAR.NORMAL}">${pic}</hp:run></hp:p>`;
 }
 
-/** Floating text box — paper-relative absolute positioning, invisible borders */
+/**
+ * Floating text box — paper-relative absolute positioning, invisible borders.
+ * OWPML has no text-box element of its own: a text box is a rectangle (`hp:rect`) that
+ * carries `hp:drawText`. Hangul silently drops unknown elements, so the shape must be a rect.
+ */
 function tboxXml(
   text: string,
   pos: { offsetX: number; offsetY: number; width: number; height: number },
@@ -568,36 +677,38 @@ function tboxXml(
   charId: number
 ): string {
   const oid = nextObjId();
-  const subListId = nextObjId();
-  const cx = Math.floor(pos.width / 2);
-  const cy = Math.floor(pos.height / 2);
+  const w = pos.width;
+  const h = pos.height;
   const innerPid = nextParaId();
   const innerPara =
     `<hp:p id="${innerPid}" paraPrIDRef="${styleId}" styleIDRef="${styleId}" pageBreak="0" columnBreak="0" merged="0">` +
     `<hp:run charPrIDRef="${charId}"><hp:t>${esc(text)}</hp:t></hp:run></hp:p>`;
 
   const tbox =
-    `<hp:tbox id="${oid}" zOrder="${oid}" numberingType="NONE" textWrap="BEHIND" textFlow="BOTH_SIDES" lock="0" dropcapstyle="None" href="" groupLevel="0" instid="${oid}">` +
-    `<hp:offset x="${pos.offsetX}" y="${pos.offsetY}"/>` +
-    `<hp:orgSz width="${pos.width}" height="${pos.height}"/>` +
-    `<hp:curSz width="${pos.width}" height="${pos.height}"/>` +
+    `<hp:rect id="${oid}" zOrder="${oid}" numberingType="NONE" textWrap="IN_FRONT_OF_TEXT" textFlow="BOTH_SIDES" lock="0" dropcapstyle="None" href="" groupLevel="0" instid="${oid}" ratio="0">` +
+    `<hp:offset x="0" y="0"/>` +
+    `<hp:orgSz width="${w}" height="${h}"/>` +
+    `<hp:curSz width="0" height="0"/>` +
     `<hp:flip horizontal="0" vertical="0"/>` +
-    `<hp:rotationInfo angle="0" centerX="${cx}" centerY="${cy}" rotateimage="1"/>` +
+    `<hp:rotationInfo angle="0" centerX="${Math.floor(w / 2)}" centerY="${Math.floor(h / 2)}" rotateimage="1"/>` +
     `<hp:renderingInfo>` +
     `<hc:transMatrix e1="1" e2="0" e3="0" e4="0" e5="1" e6="0"/>` +
     `<hc:scaMatrix e1="1" e2="0" e3="0" e4="0" e5="1" e6="0"/>` +
     `<hc:rotMatrix e1="1" e2="0" e3="0" e4="0" e5="1" e6="0"/>` +
     `</hp:renderingInfo>` +
-    `<hp:lineShape borderFillIDRef="${BORDER.NONE}" outerStyle="NONE" innerStyle="NONE" outerWidth="0.0 mm" innerWidth="0.0 mm" spacing="0" endStyle="NORMAL" endSize="SMALL" headStyle="NORMAL" headSize="SMALL" arrowReverse="0" color="#000000"/>` +
-    `<hp:fillBrush><hc:winBrush faceColor="none" hatchColor="#000000" alpha="0"/></hp:fillBrush>` +
-    `<hp:sz width="${pos.width}" widthRelTo="ABSOLUTE" height="${pos.height}" heightRelTo="ABSOLUTE" protect="0"/>` +
-    `<hp:pos treatAsChar="0" affectLSpacing="0" flowWithText="0" allowOverlap="1" holdAnchorAndSO="0" vertRelTo="PAPER" horzRelTo="PAPER" vertAlign="TOP" horzAlign="LEFT" vertOffset="${pos.offsetY}" horzOffset="${pos.offsetX}"/>` +
-    `<hp:outMargin left="0" right="0" top="0" bottom="0"/>` +
-    `<hp:inMargin left="283" right="283" top="141" bottom="141"/>` +
-    `<hp:subList id="${subListId}" textDirection="HORIZONTAL" lineWrap="BREAK" vertAlign="TOP" linkListIDRef="0" linkListNextIDRef="0" textWidth="${pos.width}" textHeight="0" hasTextRef="0" hasNumRef="0">` +
+    `<hp:lineShape color="#000000" width="0" style="NONE" endCap="FLAT" headStyle="NORMAL" tailStyle="NORMAL" headfill="1" tailfill="1" headSz="MEDIUM_MEDIUM" tailSz="MEDIUM_MEDIUM" outlineStyle="NORMAL" alpha="0"/>` +
+    `<hp:shadow type="NONE" color="#B2B2B2" offsetX="0" offsetY="0" alpha="0"/>` +
+    `<hp:drawText lastWidth="${w}" name="" editable="0">` +
+    `<hp:subList id="" textDirection="HORIZONTAL" lineWrap="BREAK" vertAlign="TOP" linkListIDRef="0" linkListNextIDRef="0" textWidth="0" textHeight="0" hasTextRef="0" hasNumRef="0">` +
     innerPara +
     `</hp:subList>` +
-    `</hp:tbox>`;
+    `<hp:textMargin left="283" right="283" top="141" bottom="141"/>` +
+    `</hp:drawText>` +
+    `<hc:pt0 x="0" y="0"/><hc:pt1 x="${w}" y="0"/><hc:pt2 x="${w}" y="${h}"/><hc:pt3 x="0" y="${h}"/>` +
+    `<hp:sz width="${w}" widthRelTo="ABSOLUTE" height="${h}" heightRelTo="ABSOLUTE" protect="0"/>` +
+    `<hp:pos treatAsChar="0" affectLSpacing="0" flowWithText="0" allowOverlap="1" holdAnchorAndSO="0" vertRelTo="PAPER" horzRelTo="PAPER" vertAlign="TOP" horzAlign="LEFT" vertOffset="${pos.offsetY}" horzOffset="${pos.offsetX}"/>` +
+    `<hp:outMargin left="0" right="0" top="0" bottom="0"/>` +
+    `</hp:rect>`;
 
   const hostPid = nextParaId();
   return `<hp:p id="${hostPid}" paraPrIDRef="${STYLE.NORMAL}" styleIDRef="${STYLE.NORMAL}" pageBreak="0" columnBreak="0" merged="0"><hp:run charPrIDRef="${CHAR.NORMAL}">${tbox}</hp:run></hp:p>`;
@@ -669,7 +780,7 @@ async function blockToHwpx(
     case "paragraph":
     case "toggle": {
       const b = block as TextBlock;
-      const lines: string[] = [pRichText(STYLE.NORMAL, CHAR.NORMAL, b.rich_text)];
+      const lines: string[] = [pRichText(STYLE.NORMAL, CHAR.NORMAL, b.rich_text, 0, indentParaPr(STYLE.NORMAL, depth))];
       for (const child of b.children)
         lines.push(await blockToHwpx(child, map, images, state, depth + 1, maxW));
       return lines.join("\n");
@@ -691,13 +802,18 @@ async function blockToHwpx(
 
     case "quote": {
       const b = block as TextBlock;
-      return pRichText(STYLE.QUOTE, CHAR.NORMAL, b.rich_text);
+      const lines: string[] = [pRichText(STYLE.QUOTE, CHAR.NORMAL, b.rich_text)];
+      for (const child of b.children)
+        lines.push(await blockToHwpx(child, map, images, state, depth + 1, maxW));
+      return lines.join("\n");
     }
 
     case "bulleted_list_item": {
       const b = block as TextBlock;
-      const text = b.rich_text.map((r) => r.text).join("");
-      const lines = [p(STYLE.BULLET, CHAR.NORMAL, `• ${text}`)];
+      const mark = ["•", "◦", "▪"][Math.min(depth, 2)];
+      const lines = [
+        pRichText(STYLE.BULLET, CHAR.NORMAL, [plainRun(`${mark} `), ...b.rich_text], 0, listParaPr(STYLE.BULLET, depth)),
+      ];
       for (const child of b.children)
         lines.push(await blockToHwpx(child, map, images, state, depth + 1, maxW));
       return lines.join("\n");
@@ -705,8 +821,10 @@ async function blockToHwpx(
 
     case "numbered_list_item": {
       const b = block as TextBlock;
-      const text = b.rich_text.map((r) => r.text).join("");
-      const lines = [p(STYLE.NUMBERED, CHAR.NORMAL, text)];
+      const n = state.listNumbers.get(b.id) ?? 1;
+      const lines = [
+        pRichText(STYLE.NUMBERED, CHAR.NORMAL, [plainRun(`${n}. `), ...b.rich_text], 0, listParaPr(STYLE.NUMBERED, depth)),
+      ];
       for (const child of b.children)
         lines.push(await blockToHwpx(child, map, images, state, depth + 1, maxW));
       return lines.join("\n");
@@ -714,14 +832,32 @@ async function blockToHwpx(
 
     case "to_do": {
       const b = block as ToDoBlock;
-      const text = b.rich_text.map((r) => r.text).join("");
-      return p(STYLE.NORMAL, CHAR.NORMAL, `${b.checked ? "☑" : "☐"} ${text}`);
+      const lines = [
+        pRichText(STYLE.NORMAL, CHAR.NORMAL, [plainRun(`${b.checked ? "☑" : "☐"} `), ...b.rich_text], 0, indentParaPr(STYLE.NORMAL, depth)),
+      ];
+      for (const child of b.children)
+        lines.push(await blockToHwpx(child, map, images, state, depth + 1, maxW));
+      return lines.join("\n");
     }
 
     case "callout": {
       const b = block as CalloutBlock;
-      const text = b.rich_text.map((r) => r.text).join("");
-      return p(STYLE.QUOTE, CHAR.NORMAL, `${b.icon} ${text}`);
+      // Current Notion callouts keep their body in child blocks, not in the title
+      let lead = b.rich_text;
+      let rest = b.children;
+      if (!lead.map((r) => r.text).join("").trim() && rest[0]?.type === "paragraph" && rest[0].children.length === 0) {
+        lead = (rest[0] as TextBlock).rich_text;
+        rest = rest.slice(1);
+      }
+      // Hangul draws the emoji variation selector (U+FE0F) as a box, so drop it
+      const icon = b.icon.split(String.fromCharCode(0xfe0f)).join("");
+      const lines: string[] = [pRichText(STYLE.QUOTE, CHAR.NORMAL, [plainRun(`${icon} `), ...lead])];
+      for (const child of rest) {
+        if (child.type === "paragraph" && child.children.length === 0)
+          lines.push(pRichText(STYLE.QUOTE, CHAR.NORMAL, (child as TextBlock).rich_text));
+        else lines.push(await blockToHwpx(child, map, images, state, depth + 1, maxW));
+      }
+      return lines.join("\n");
     }
 
     case "code": {
@@ -773,9 +909,10 @@ async function blockToHwpx(
       const colCount = Math.max(...rowBlocks.map((r) => r.cells.length));
       // Pre-assign outer paragraph ID so it is lower than all cell content IDs
       const outerPid = nextParaId();
-      const rows = rowBlocks.map((row) => {
+      const rows = rowBlocks.map((row, rIdx) => {
+        const isHeader = tb.has_column_header && rIdx === 0;
         const cells = row.cells.map((cell) => ({
-          content: p(STYLE.NORMAL, CHAR.NORMAL, cell.map((r) => r.text).join("")),
+          content: pRichText(STYLE.NORMAL, CHAR.NORMAL, isHeader ? cell.map((r) => ({ ...r, bold: true })) : cell),
         }));
         while (cells.length < colCount) cells.push({ content: pEmpty() });
         return cells;
@@ -918,7 +1055,7 @@ async function buildSectionXml(
   // Floating text boxes for title / author / user text elements
   const emitTbox = (text: string, plc: CoverPlacement, style: CoverTextStyle) => {
     if (!text) return;
-    const m = COVER_TEXT_STYLE_MAP[style];
+    const m = COVER_TEXT_STYLE_MAP[style] ?? COVER_TEXT_STYLE_MAP.body;
     coverParts.push(tboxXml(text, {
       offsetX: pctXToHwp(plc.x),
       offsetY: pctYToHwp(plc.y),
@@ -934,12 +1071,26 @@ async function buildSectionXml(
   // TOC and body
   coverParts.push(pEmpty()); // emptyBeforeToc
   const tocHeading = p(STYLE.H1, CHAR.H1, tocTitle, 1); // page-break to TOC page
-  const emptyAfterToc = pEmpty();
+  // Static TOC: heading titles indented by level. Page numbers need Hangul's own layout,
+  // so they are left out rather than guessed.
+  const tocStyles = [STYLE.TOC1, STYLE.TOC2, STYLE.TOC3];
+  const tocLines: string[] = [];
+  (function collect(bs: Block[]) {
+    for (const b of bs) {
+      if (b.type === "heading_1" || b.type === "heading_2" || b.type === "heading_3") {
+        const text = (b as TextBlock).rich_text.map((r) => r.text).join("").trim();
+        const level = map.get(b.type) ?? 1;
+        if (text) tocLines.push(p(tocStyles[Math.min(level, 3) - 1], CHAR.NORMAL, text));
+      }
+      if (b.children.length) collect(b.children);
+    }
+  })(page.blocks);
+  const emptyAfterToc = tocLines.length ? tocLines.join("\n") : pEmpty();
   const bodyStart = pEmpty(1); // page-break to body page
 
   // ── Build body paragraphs AFTER structural (higher IDs, still in document order) ──
   const bodyParts: string[] = [];
-  const state: ConvertState = { firstTopHeadingSeen: false };
+  const state: ConvertState = { firstTopHeadingSeen: false, listNumbers: assignListNumbers(page.blocks) };
   for (const block of page.blocks) {
     const xml = await blockToHwpx(block, map, images, state, 0);
     if (xml) bodyParts.push(xml);
@@ -997,6 +1148,7 @@ export async function convertToHwpx(page: NotionPage, settings: ExportSettings):
   // Reset per-document counters
   _paraId = 0;
   _objId = 0;
+  _charVariants = [];
 
   const headingMap = buildHeadingMap(page.blocks);
   const fontTable = buildFontTable(settings.fonts, settings.colors);

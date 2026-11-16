@@ -1,18 +1,16 @@
-# 스토어 등록 문구 (v2.0.1)
+# 스토어 등록 문구 (v2.1.0)
 
-> 2026-09-04 기준. Edge·Chrome·Whale 세 스토어 모두 이 문구로 v2.0.1 을 제출했고, Edge 는 당일 게시되었습니다.
-> 이후 버전에서도 이 문서를 등록 문구 정본으로 사용합니다.
+> 2026-11-16 기준. v2.1.0 제출 문구입니다. 버전이 바뀌면 이 문서를 새 버전 이름으로 옮겨 정본으로 사용합니다.
 
 ## 업로드 파일
 
 | 항목 | 값 |
 |------|-----|
-| 확장 패키지 | `store/DocExporter_for_Notion_v2.0.1.zip` (약 197KB) |
+| 확장 패키지 | `store/DocExporter_for_Notion_v2.1.0.zip` (약 200KB) |
 | 아이콘 | `store/icon128.png` |
 | 스크린샷 순서 | `screenshot_01_dropdown.png` → `02_cover.png` → `03_body.png` → `04_body2.png` |
 
-스크린샷 1번만 새 도메인(`app.notion.com`) 화면으로 교체되었습니다. 2번부터 4번까지는 문서 출력 결과라
-도메인과 무관하므로 기존 파일을 그대로 사용합니다.
+스크린샷은 v2.0.1 게시본과 같은 파일을 사용합니다. 내보내기 메뉴와 DOCX 출력 화면은 이번 버전에서 바뀌지 않았습니다.
 
 ## 확장 이름
 
@@ -39,7 +37,7 @@ Notion 기본 내보내기와 달리 표지, 자동 목차, 서식이 적용된 
 - Notion 상단 바에서 바로 내보내기: 내보내기 메뉴에서 DOCX 또는 HWPX 선택
 - 표지 디자이너: 표지 이미지 등록, 텍스트 요소 자유 배치, 페이지 제목과 작성자 자동 삽입
 - 글꼴과 색상 지정: 전체, 제목1, 제목2, 제목3, 본문, 인용, 코드, 캡션 등 8개 항목별 설정
-- 실제 목차 생성: DOCX는 Word 목차 필드, HWPX는 한글 목차 컨트롤로 삽입
+- 목차 자동 생성: DOCX는 Word 목차 필드, HWPX는 제목 수준별 목차 목록으로 삽입
 
 변환 지원 블록
 제목, 문단, 글머리 기호 목록, 번호 목록, 할 일 목록, 인용문, 콜아웃(이모지와 배경색 유지), 코드 블록, 표, 이미지, 북마크, 구분선, 토글, 다단 레이아웃, 머메이드 다이어그램
@@ -66,7 +64,7 @@ WHAT YOU CAN DO
 - Export straight from the Notion top bar: pick DOCX or HWPX from the Export menu
 - Design a cover page: add a cover image, place text blocks freely, and let the page title and author fill themselves in
 - Set fonts and colors for eight slots: global, heading 1, heading 2, heading 3, body, quote, code, and caption
-- Get a real table of contents: a Word TOC field in DOCX, an HWP TOC control in HWPX
+- Get a table of contents: a Word TOC field in DOCX, a heading list indented by level in HWPX
 
 WHAT IT CONVERTS
 Headings, paragraphs, bulleted and numbered lists, to-do checklists, quotes, callouts with emoji and background color, code blocks, tables, images, bookmarks, dividers, toggles, multi-column layouts, and Mermaid diagrams.
@@ -128,9 +126,18 @@ Host access to notion.so and notion.com is required because the extension export
 ## 심사 참고 사항 (Notes for certification)
 
 ```
-What changed in 2.0.1
+What changed in 2.1.0
 
-Notion moved its web app to app.notion.com. The previous version only injected on www.notion.so, so the Export button stopped appearing. This update adds app.notion.com to the content script matches and host permissions, calls Notion's page-loading endpoint on the origin of the page the user is actually on (session cookies are bound to the host), and uses one shared helper to decide when image requests need credentials.
+Conversion quality fixes and HWPX formatting support. No new permissions and no change to the data the extension accesses.
+
+- Content of collapsed toggles is now exported. Notion's page-loading endpoint leaves those blocks out, so the extension requests the missing blocks from the same Notion endpoint family on the current origin.
+- Callout bodies stored as child blocks, and blocks nested under quotes, are now exported.
+- HWPX: bold, italic, underline, strikethrough, text color and links are kept; numbered lists show their numbers; nested lists are indented; the cover page text appears; the table of contents lists the headings.
+- DOCX: code blocks keep their line breaks; separate numbered lists restart at 1; the table of contents no longer lists its own title.
+- Table header rows are bold in both formats.
+- Options page: a font name typed by hand is saved even when Save is clicked right away; remaining English labels are localized.
+- Popup shows the installed version.
+- The background worker ignores messages that do not come from this extension.
 
 How to test
 
@@ -150,10 +157,20 @@ Notes for the reviewer
 - The extension does no work until the user clicks Export.
 ```
 
+## 새로운 기능 (웨일 스토어 업데이트 안내)
+
+```
+- 접힌 토글 안의 내용과 콜아웃 본문이 빠지던 문제를 고쳤습니다
+- HWPX: 굵게·기울임·밑줄·취소선·글자색·링크 서식, 번호 목록 번호, 중첩 목록 들여쓰기, 표지 문구, 목차 목록을 반영합니다
+- DOCX: 코드 블록 줄바꿈을 유지하고, 서로 떨어진 번호 목록이 1부터 다시 시작합니다
+- 표 머리글 행을 굵게 표시합니다
+- 설정 화면에서 글꼴 이름을 입력하고 바로 저장해도 반영되도록 고쳤습니다
+```
+
 ## 스토어별 진행 상황
 
 | 스토어 | 상태 | 비고 |
 |--------|------|------|
-| Microsoft Edge Add-ons | 2026-09-04 게시 완료 | 제출 당일 승인. [스토어 페이지](https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm) |
-| Chrome 웹 스토어 | 2026-09-04 제출, 심사 중 | 개발자 콘솔이 확장 스크립팅 차단 영역이라 직접 업로드로 진행 |
-| Whale 스토어 | 2026-09-04 제출, 리뷰 중 | 수정 화면에서 패키지 재업로드 후 리뷰 요청 완료 |
+| Microsoft Edge Add-ons | 제출 준비 | v2.0.1 은 2026-09-04 게시 |
+| Chrome 웹 스토어 | 제출 준비 | v2.0.1 은 2026-09-05 게시 |
+| Whale 스토어 | 제출 준비 | v2.0.1 은 2026-09-07 게시 |
