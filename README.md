@@ -2,9 +2,9 @@
 
 > Notion 페이지를 표지·목차·본문이 갖춰진 DOCX · HWPX 문서로 내보내는 브라우저 확장 (Manifest V3)
 
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-v2.0.1-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/haemhllhnpfdpjabhjfpngmkhbbmlcnm)
-[![Microsoft Edge Add-ons](https://img.shields.io/badge/Edge-v2.0.1-0078D4?logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm)
-[![Whale Store](https://img.shields.io/badge/Whale-v2.0.1-03C75A?logo=naver&logoColor=white)](https://store.whale.naver.com/detail/ijkgdnompkniflhnonpkppdmejjbopdk)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-v2.1.1-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/haemhllhnpfdpjabhjfpngmkhbbmlcnm)
+[![Microsoft Edge Add-ons](https://img.shields.io/badge/Edge-v2.1.1-0078D4?logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/aimbjdofpnlakdgmhaacbdkocjbmdfkm)
+[![Whale Store](https://img.shields.io/badge/Whale-v2.1.1-03C75A?logo=naver&logoColor=white)](https://store.whale.naver.com/detail/ijkgdnompkniflhnonpkppdmejjbopdk)
 [![사용 설명서](https://img.shields.io/badge/%EC%82%AC%EC%9A%A9%20%EC%84%A4%EB%AA%85%EC%84%9C-GitHub%20Pages-1F3F77?logo=readthedocs&logoColor=white)](https://soma0sd.github.io/docexporter-for-notion/)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-34A853)](manifest.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
@@ -19,7 +19,7 @@
 | 현재 버전 | 2.1.1 (2026-11-16 빌드) |
 | 스토어 등록명 | Notion Exporter / Notion 내보내기 |
 | 지원 브라우저 | Chrome · Microsoft Edge · Whale (Chromium 계열) |
-| 게시 상태 | 웨일 v2.1.0 게시, v2.1.1 세 스토어 심사 중 (2026-11-16). Chrome·Edge 배포본은 게시 전까지 v2.0.1 |
+| 게시 상태 | 세 스토어 모두 v2.1.1 게시 (2026-11-18 확인) |
 | 사용 설명서 | [GitHub Pages](https://soma0sd.github.io/docexporter-for-notion/) |
 
 ---
